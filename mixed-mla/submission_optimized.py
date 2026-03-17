@@ -19,7 +19,6 @@ from aiter import get_mla_metadata_info_v1, get_mla_metadata_v1
 
 FP8_DTYPE = aiter_dtypes.fp8
 PAGE_SIZE = 1
-NUM_KV_SPLITS = 32
 
 
 def quantize_fp8(tensor: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
@@ -30,11 +29,25 @@ def quantize_fp8(tensor: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
     return fp8_tensor, scale.to(torch.float32).reshape(1)
 
 
+def _choose_num_kv_splits(batch_size, kv_seq_len):
+    """Adaptive split-K for MLA decode based on problem size."""
+    # More splits = more parallelism but more reduction overhead
+    # For small kv_seq_len, fewer splits avoid wasted work
+    # For large batch, fewer splits since batches already provide parallelism
+    total_kv_work = batch_size * kv_seq_len
+    if total_kv_work >= 1024 * 1024:  # bs=256 * kv=8192
+        return 16
+    elif total_kv_work >= 64 * 1024:
+        return 32
+    else:
+        return 32  # default for small problems
+
+
 def _make_mla_decode_metadata(
     batch_size, max_q_len, nhead, nhead_kv,
     q_dtype, kv_dtype,
     qo_indptr, kv_indptr, kv_last_page_len,
-    num_kv_splits=NUM_KV_SPLITS,
+    num_kv_splits=32,
 ):
     info = get_mla_metadata_info_v1(
         batch_size, max_q_len, nhead, q_dtype, kv_dtype,
@@ -99,12 +112,16 @@ def custom_kernel(data: input_t) -> output_t:
     max_q_len = q_seq_len
     kv_last_page_len = (kv_indptr[1:] - kv_indptr[:-1]).to(torch.int32)
 
+    # Adaptive split-K
+    kv_seq_len = config["kv_seq_len"]
+    num_kv_splits = _choose_num_kv_splits(batch_size, kv_seq_len)
+
     # Build metadata
     meta = _make_mla_decode_metadata(
         batch_size, max_q_len, nq, nkv,
         q_fp8.dtype, kv_buffer_fp8.dtype,
         qo_indptr, kv_indptr, kv_last_page_len,
-        num_kv_splits=NUM_KV_SPLITS,
+        num_kv_splits=num_kv_splits,
     )
 
     # Run optimized decode
@@ -122,7 +139,7 @@ def custom_kernel(data: input_t) -> output_t:
         nhead_kv=nkv,
         sm_scale=sm_scale,
         logit_cap=0.0,
-        num_kv_splits=NUM_KV_SPLITS,
+        num_kv_splits=num_kv_splits,
         q_scale=q_scale,
         kv_scale=kv_scale,
         intra_batch_mode=True,
