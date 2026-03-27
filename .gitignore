@@ -1,0 +1,9 @@
+CLAUDE.md
+CC_TASKS.md
+*.json
+*_output.txt
+*_last_sweep*
+__pycache__/
+*.pyc
+.claude/
+gemm_experiments/logs/

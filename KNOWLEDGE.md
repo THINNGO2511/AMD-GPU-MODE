@@ -1,0 +1,383 @@
+# AMD GPU MODE Hackathon — Full Knowledge Base
+
+## Project Overview
+- **Competition**: AMD x GPU MODE Phase 1 Qualifiers
+- **Deadline**: April 7, 2026
+- **Goal**: Top 10 on all 3 leaderboards
+- **GPU**: AMD Instinct MI355X (gfx950, CDNA4, 304 CUs, 8 XCDs, 5300 GB/s HBM)
+- **GitHub**: https://github.com/THINNGO2511/AMD-GPU-MODE
+- **Submission**: `popcorn submit --gpu MI355X --leaderboard <name> --mode <mode> <file> --no-tui`
+- **Rate limits**: 10 benchmark/hr per problem, 1 leaderboard/hr per problem
+
+---
+
+## 3 Problems
+
+### 1. MXFP4 GEMM (leaderboard: amd-mxfp4-mm)
+- **Task**: Quantize bf16 A → MXFP4, multiply with pre-quantized MXFP4 B → bf16 C
+- **Input**: `(A[m,k] bf16, B[n,k] bf16, B_q fp4x2, B_shuffle fp4x2, B_scale_sh e8m0)`
+- **Benchmark shapes**: (4,2880,512), (16,2112,7168), (32,4096,512), (32,2880,512), (64,7168,2048), (256,3072,1536)
+- **Tolerance**: rtol=1e-2, atol=1e-2
+- **Our best**: 16.5μs ranked / ~10μs benchmark | top is 4.36μs (HorizonLiang)
+
+### 2. MXFP4 MoE (leaderboard: amd-moe-mxfp4)
+- **Task**: DeepSeek-R1 fused MoE, 256 routed + 1 shared expert, top-k=8+1=9
+- **Config**: hidden=7168, expert intermediate: 256 (E=257) or 512/2048 (E=33)
+- **Benchmark shapes**: bs=16/128/512 for E=257 d=256; bs=16/128/512 for E=33 d=512; bs=512 E=33 d=2048
+- **Tolerance**: rtol=2e-2, atol=2e-2
+- **Our best**: ~167μs benchmark / ~169μs ranked | top 10 needs ~136μs
+
+### 3. MLA Decode (leaderboard: amd-mixed-mla)
+- **Task**: DeepSeek R1 forward_absorb MLA, 16 Q heads, 1 KV head
+- **Config**: qk_head_dim=576, v_head_dim=512, sm_scale=1/sqrt(576)
+- **KV formats**: bf16, fp8, mxfp4 (all provided simultaneously)
+- **Benchmark shapes**: bs=4/32/64/256, kv=1024/8192
+- **Tolerance**: rtol=0.1, atol=0.1, 5% mismatch bypass
+- **Our best**: ~45μs benchmark | top is 33μs (Ananda Sai A)
+
+---
+
+## Current Best Submissions
+
+### GEMM: `mxfp4-mm/submission_prewarm.py` (16.5μs ranked)
+- gemm_a16wfp4 for K!=1536 (fused A quant into GEMM, single kernel)
+- gemm_afp4wfp4 for K=1536 (separate quant + GEMM)
+- Custom K=7168 config: BM=8 BN=64 BK=512 KS=8 W=4 S=2 WPE=2 MI=16
+- Pre-warm quant kernel for all M values on first call
+- Output tensor caching by (m, n) key
+
+### MoE: `moe-mxfp4/submission_inject_metadata.py` (~167μs benchmark)
+- OPUS sorting enabled (`fm._USE_OPUS_MOE_SORTING = True`)
+- use_nt=False globally
+- CK kernel injection for E≤64 d<2048 (S1_64/S1_256 + S2_V1)
+- d≥2048: currently NO injection (default heuristic, ~337μs for that shape)
+- Custom get_block_size_M: 32 for est_m<50, 64 for est_m≥50, 128 for d≥2048 est_m≥100
+
+### MLA: `mixed-mla/submission_pg8_v2.py` (~45μs benchmark)
+- pg1+bf16Q for kv≤1024 (a16w8 ASM kernel, no Q quant overhead)
+- pg8+fp8Q for kv≥8192 (a8w8 ASM kernel, 8x less KV cache entries)
+- kv_granularity = max(1, 16 // page_size) — CRITICAL formula
+- Fused Q fp8 quant (2 Triton kernels instead of 6 PyTorch ops)
+- Per-shape num_kv_splits: bs≤4→4, bs≤32→8, else→16
+
+---
+
+## Runner Environment (probed Session 8, Mar 27)
+- **GPU**: AMD Instinct MI355X, 1 device
+- **CPU**: AMD EPYC 9575F 64-Core
+- **ROCm**: 7.1, HIP 7.1.25424
+- **PyTorch**: 2.10.0+rocm7.1
+- **Triton**: 3.6.0
+- **CU_NUM**: 256
+- **aiter**: JIT-compiled, no version string
+- **Python**: 3.12
+
+### aiter Key Paths on Runner
+- `/home/runner/aiter/aiter/` — Python source
+- `/home/runner/aiter/hsa/gfx950/` — Pre-compiled kernel binaries
+- `/home/runner/aiter/hsa/gfx950/f4gemm/` — 36 FP4 GEMM ASM .co files
+- `/home/runner/aiter/aiter/ops/triton/configs/gemm/` — 137 config JSONs (66 FP4)
+- `/home/runner/aiter/aiter/configs/tuned_fmoe.csv` — MoE tuned configs (1422 lines)
+- `/home/runner/aiter/aiter/configs/model_configs/dsv3_fp4_tuned_fmoe.csv` — DSv3 FP4 MoE
+
+### aiter Key APIs
+```python
+# GEMM
+from aiter.ops.triton.gemm.basic.gemm_a16wfp4 import gemm_a16wfp4  # bf16 A, fused quant
+from aiter.ops.triton.gemm.basic.gemm_afp4wfp4 import gemm_afp4wfp4  # fp4 A+B
+from aiter.ops.triton.gemm.basic.gemm_a8wfp4 import gemm_a8wfp4  # fp8 A + fp4 B (NEW)
+from aiter.ops.triton.quant import dynamic_mxfp4_quant
+
+# MLA
+from aiter.mla import mla_decode_fwd
+from aiter import get_mla_metadata_info_v1, get_mla_metadata_v1
+
+# MoE
+from aiter.fused_moe import fused_moe  # NOT: from aiter import fused_moe
+from aiter import ActivationType, QuantType
+```
+
+### aiter GEMM Kernel APIs (discovered Session 8)
+```
+gemm_a16wfp4(A, w, w_scales, dtype, y=None, config=None)
+  A: bf16 (M,K), w: fp4 uint8 (N,K//2), w_scales: E8M0 UNSHUFFLED (N,K//32)
+
+gemm_afp4wfp4(A_fp4, w, A_scale, w_scales, dtype)
+  A_fp4: fp4 uint8 (M,K//2), w: fp4 uint8 (N,K//2)
+  A_scale: E8M0 (M,K//32), w_scales: E8M0 UNSHUFFLED (N,K//32)
+
+gemm_a8wfp4(x, w, y, x_scales, w_scales, dtype, config=None)  # NEW
+  x: FP8 E4M3 (M,K), w: fp4 uint8 (N,K//2), y: output (M,N)
+  x_scales: FP32 per-row (M,1), w_scales: E8M0 UNSHUFFLED (N,K//32)
+  BLOCKED: eval framework B_scale_sh has mismatched shape — strict assertion fails
+
+gemm_a16wfp4_preshuffle(x, w, w_scales, prequant=True, dtype, y, config, skip_reduce)
+  Uses B_shuffle + shuffled scales directly (no unshuffle needed)
+  DEAD END: Triton 3.6 KeyError 'float8_e8m0fnu' on scale pointer dtype
+
+deepgemm(XQ, WQ, Y, group_layout, x_scale=None, w_scale=None)  # UNEXPLORED
+deepgemm_ck(*args, **kwargs)  # UNEXPLORED
+```
+
+---
+
+## GEMM — Detailed Findings
+
+### Status: CONFIG TUNING EXHAUSTED (Session 8)
+- 10μs benchmark / 16.5μs ranked. Top 4.36μs = 4x gap.
+- **12 experiments in Session 8, zero improvements** beyond noise
+- aiter default configs are already near-optimal for Triton path
+- Gap requires fundamentally different approach (persistent kernel, custom Triton, etc.)
+
+### Session 8 GEMM Experiment Results
+| Exp | Approach | Geomean | vs Baseline |
+|-----|----------|---------|-------------|
+| 01 | Env probe | 10.0μs | same (probe data) |
+| 02 | Full warmup | 10.0μs | same |
+| 03 | stages=3 all | 10.3μs | +3% (K=2048 kills it) |
+| 04 | Per-shape tuned | ~12.5μs | +25% worse |
+| 05 | Aggressive ksplit | ~13.8μs | +39% worse |
+| 07 | waves1+cg | ERROR | "work on another stream" |
+| 08 | Small tiles | not run | |
+| 11 | a8wfp4 probe | 10.0μs | probe data |
+| 12 | a8wfp4 v1 | ERROR | scale shape mismatch |
+| 13 | preshuffle | ERROR | Triton e8m0 dtype bug |
+| 14 | Hybrid stages=3 K=512 | 9.8μs | -1% (noise) |
+| 15 | a8wfp4 v2 | ERROR | same scale shape bug |
+| 16 | a8wfp4 configs on a16w | ~14.5μs | +45% terrible |
+
+### GEMM Key Discoveries
+- `gemm_a8wfp4` EXISTS with tuned per-M configs (WPE=4-6, .cg, KS=4)
+  - BLOCKED by eval framework: B_scale_sh shape doesn't match (N, K//32)
+  - a16wfp4 handles this gracefully, a8wfp4 has strict assertion
+- `gemm_a16wfp4_preshuffle` EXISTS but DEAD END (Triton 3.6 e8m0 dtype)
+- a8wfp4-style configs DON'T transfer to a16wfp4 (BK=256 wrong for small K)
+- num_stages=3: helps K=512 shapes (-6%) but kills K=2048 (+34%)
+- Default configs are unbeatable — all custom configs are worse
+- Autoresearch infra built: `mxfp4-mm/gemm_autoresearch.py` + `gemm_experiments/`
+
+### GEMM Remaining Leads (radical only)
+- Custom Triton kernel from scratch (persistent threads)
+- f4gemm ASM .co kernels called directly (36 available)
+- deepgemm/deepgemm_ck (needs group_layout investigation)
+- torch.compile on kernel function
+
+### GEMM Config Reference
+```python
+# K=7168 custom config (ONLY config that beats defaults)
+{"BLOCK_SIZE_M": 8, "BLOCK_SIZE_N": 64, "BLOCK_SIZE_K": 512,
+ "GROUP_SIZE_M": 1, "num_warps": 4, "num_stages": 2,
+ "waves_per_eu": 2, "matrix_instr_nonkdim": 16, "cache_modifier": None,
+ "NUM_KSPLIT": 8, "SPLITK_BLOCK_SIZE": 1024}
+
+# K=1536: use afp4wfp4 path (separate quant + GEMM)
+# All other K values: use default (None) config
+```
+
+### GEMM Dead Ends (comprehensive, Sessions 1-8)
+- CK gemm_a4w4: 19-34μs (3 kernel launches kill it)
+- HIP MFMA kernel: correct (ZERO error) but 17.8μs = worse than Triton
+- gemm_a16wfp4_preshuffle: Triton e8m0 dtype KeyError
+- gemm_a8wfp4: eval framework scale shape assertion bug
+- a8wfp4 configs on a16wfp4: -35% to -110% worse
+- Custom scalar HIP: 5-10% quant mismatch
+- load_inline: ~90s compile eats timeout budget
+- num_stages=3 globally: K=2048 +34% regression
+- Per-shape custom configs: ALL worse than defaults
+- Aggressive split-K: -26% to -70% worse
+- Full warmup: no improvement
+- CUDA/HIP graphs: 2x worse
+- Hand-tuned a16wfp4 configs for K=512/2048: worse than defaults
+
+---
+
+## MoE — Detailed Findings
+
+### Status: d=2048 INJECTION ACTIVE (Session 8)
+
+### Session 8 MoE Root Cause: CSV Mismatch
+- **fc0c54bb commit NOT deployed** to runner (CSV still 1422 lines, unchanged)
+- Even if deployed: commit uses `expert=32, topk=8` but benchmark has `expert=33, topk=9`
+- CSV lookup is EXACT match on all 13 fields — will never hit our shape
+- ALL E=33 shapes hit "2stage default" heuristic (confirmed by probe)
+- Heuristic default DOES set a kernelName — so `if not kernelName` check skips injection
+
+### fc0c54bb Commit Kernel Names (for E=32 d=2048 FP4 Silu)
+```
+token≤4:   S1=64x32x32x128_v3       S2=256x32x128x128_v3    block_m=32
+token=8:   S1=256x32x128x128_v3     S2=256x32x128x128_v3    block_m=32
+token≤64:  S1=64x32x32x128_v3       S2=256x32x128x128_v3    block_m=32
+token=128: S1=256x64x128x128_v3     S2=256x64x128x128_v3    block_m=64
+token=256: S1=256x64x128x128_v3     S2=256x64x128x128_v3    block_m=64
+token≥512: S1=256x128x128x128_v3    S2=256x128x128x128_v3   block_m=128
+```
+
+Full kernel names for bs=512 (our bottleneck):
+```
+S1: moe_ck2stages_gemm1_256x128x128x128_1x4_MulABScaleShuffled_v3_Nswizzle0_Quant3_MulRoutedWeight0_silu_FP4X2_FP4X2_B16
+S2: moe_ck2stages_gemm2_256x128x128x128_1x4_MulABScaleExpertWeightShuffled_v3_Nswizzle0_Quant3_MulRoutedWeight1_FP4X2_FP4X2_B16
+```
+
+### MoE Injection Attempts (Session 8)
+- **v1** (inject_fc0c54bb.py): 342μs — injection didn't fire; heuristic default sets kernelName so `if not kernelName` check skipped the override
+- **v2** (inject_fc0c54bb_v2.py): PENDING — unconditional d>=2048 override, bypasses kernelName check, has debug prints `INJECT_D2048:`
+
+### MoE What Works
+- `submission_inject_metadata.py`: OPUS + CK injection for E≤64 d<2048 = **167μs**
+- use_nt=False globally: +2-4%
+- OPUS sorting: helps E=257 ~10%
+- CK kernel injection (S1_64/S1_256 + S2_V1): +10-20% for E=33 d<2048
+- d≥2048 heuristic was "17% faster" than OLD injection (small 64x32 tiles)
+  - BUT commit kernels use LARGE tiles (256x128) — v2 tests this
+
+### MoE Monkey-Patching Pattern
+```python
+import aiter.fused_moe as fm
+import functools
+
+fm.use_nt = lambda token, topk, expert: False
+fm._USE_OPUS_MOE_SORTING = True
+
+orig_get_2stage = fm.get_2stage_cfgs.__wrapped__
+@functools.lru_cache(maxsize=2048)
+def new_get_2stage(token, model_dim, inter_dim, expert, topk,
+                   dtype, q_dtype_a, q_dtype_w, q_type,
+                   use_g1u1, activation, doweight_stage1,
+                   hidden_pad, intermediate_pad, is_shuffled=True):
+    result = orig_get_2stage(...)
+    # Override result for specific shapes
+    if expert <= 64 and inter_dim >= 2048:
+        return fm.MOEMetadata(
+            functools.partial(fm.ck_moe_stage1, kernelName=..., ...),
+            functools.partial(aiter.ck_moe_stage2_fwd, kernelName=..., ...),
+            block_m, 0, False)
+    return result
+fm.get_2stage_cfgs = new_get_2stage
+fm.cfg_2stages = None  # Clear cached config
+```
+
+### MoE Benchmark Reference
+| Shape | inject_metadata | notes |
+|-------|----------------|-------|
+| E=257 bs=16 d=256 | 127μs | CK injected |
+| E=257 bs=128 d=256 | 206μs | CK injected |
+| E=257 bs=512 d=256 | 241μs | CK injected |
+| E=33 bs=16 d=512 | 87μs | CK injected |
+| E=33 bs=128 d=512 | 111μs | CK injected |
+| E=33 bs=512 d=512 | 178μs | CK injected |
+| E=33 bs=512 d=2048 | **337μs** | **GEOMEAN KILLER — default heuristic** |
+| **Geomean** | **~167μs** | **Need 136μs for top 10** |
+
+### MoE Dead Ends
+- Direct ck_moe_stage1/stage2 calls: GPU memory fault
+- Buffer reuse: GPU crash
+- 1-stage kernel (fmoe_g1u1): 182μs, slower
+- ksplit=2 for d=2048: triggers cktile path, 2x SLOWER
+- dispatch_policy=1: 80% slower
+- doweight_stage1=True: wrong results
+- block_m override via monkey-patch: JIT timeout
+- CK injection for d=2048 with SMALL tiles (64x32): 17% WORSE
+- inject_v2 with `_none_` stage2: 8-21% worse
+- sepqsort (threshold=0): no improvement
+
+---
+
+## MLA — Detailed Findings
+
+### Status: 45μs, need 33μs
+- Two ASM kernels: a16w8 (bf16 Q) and a8w8 (fp8 Q)
+- pg8 for kv≥8192 gives 8x KV cache reduction → major speedup
+- pg1 for kv≤1024 is accuracy-safe
+- pg2 for kv=1024 is risky (~4.1% mismatch, fails some seeds)
+
+### MLA Dead Ends
+- pg2+pg8 (41μs benchmark): FAILS leaderboard secret seed
+- pg8 for kv=1024: FAILS accuracy
+- pg4/pg16: FAIL accuracy
+- a16w8 for kv=8192: 2x slower (bf16 Q bandwidth)
+- fast_mode=True: 5-10% worse
+- MXFP4 Triton attention: 6-291x slower
+- HIP MXFP4 MLA: linker issues
+
+---
+
+## MXFP4 Format Reference
+- **E2M1**: 4-bit FP, values {0, ±0.5, ±1, ±1.5, ±2, ±3, ±4, ±6}
+- **Packing**: low nibble = even index, high nibble = odd index
+- **E8M0 scale**: 2^(byte_value - 127), one per 32 elements
+- **B_scale unshuffle**: view(sm//32, sn//8, 4, 16, 2, 2).permute(0,5,3,1,4,2)
+
+### B_scale Unshuffle (verified)
+```python
+def _unshuffle_e8m0(scale_sh):
+    s = scale_sh.view(torch.uint8)
+    sm, sn = s.shape
+    s = s.view(sm // 32, sn // 8, 4, 16, 2, 2)
+    s = s.permute(0, 5, 3, 1, 4, 2).contiguous()
+    return s.view(sm, sn)
+```
+
+---
+
+## load_inline HIP Pattern (PROVEN)
+```python
+import os
+os.environ["PYTORCH_ROCM_ARCH"] = "gfx950"
+from torch.utils.cpp_extension import load_inline
+
+mod = load_inline(
+    name="my_kernel_v1",  # bump version to bust cache
+    cpp_sources="torch::Tensor fn(torch::Tensor A);",  # forward decl
+    cuda_sources=HIP_SOURCE,
+    functions=["fn"],
+    extra_cuda_cflags=["-O3", "--offload-arch=gfx950"],
+)
+```
+- **NO PYBIND11_MODULE** in cuda_sources
+- **NO word "stream"** anywhere — use `hipLaunchKernelGGL(k, g, b, 0, 0, args)`
+- Use `hip_bfloat16`, NOT `__hip_bfloat16`
+- Takes ~90s to compile — eats benchmark timeout budget
+
+---
+
+## Competitor Intelligence
+| Rank | User | GEMM | MoE | MLA | Notes |
+|------|------|------|-----|-----|-------|
+| 1 | HorizonLiang | **4.36μs** | — | — | Fundamentally different approach? |
+| 1 | Ananda Sai A | 8.1μs | **110μs** | **33μs** | pg2_fix all sizes, 293 subs |
+| 2 | josusanmartin | **7.8μs** | 127μs | 43.5μs | 3861 subs (automated sweeping) |
+| ~10 | threshold | ~9μs | ~136μs | ~50μs | |
+| us | noobmaster69_og | 16.5μs | 169μs | 45μs | |
+
+---
+
+## Project File Structure
+```
+AMD-GPU-MODE/
+├── KNOWLEDGE.md          # This file (push to GitHub)
+├── CLAUDE.md             # NEVER push (local only)
+├── mxfp4-mm/
+│   ├── submission.py              # Active leaderboard submission
+│   ├── submission_prewarm.py      # Best GEMM (16.5μs ranked)
+│   ├── gemm_autoresearch.py       # Automated experiment runner
+│   ├── gemm_autoresearch_results.json
+│   └── gemm_experiments/          # 16 experiment submissions
+├── moe-mxfp4/
+│   ├── submission.py              # Active leaderboard submission
+│   ├── submission_inject_metadata.py  # Best MoE (167μs)
+│   └── moe_experiments/
+│       ├── probe_csv_d2048.py     # CSV investigation probe
+│       ├── inject_fc0c54bb.py     # v1 kernel injection (failed)
+│       └── inject_fc0c54bb_v2.py  # v2 unconditional injection (pending)
+├── mixed-mla/
+│   ├── submission.py              # Active leaderboard submission
+│   └── submission_pg8_v2.py       # Best MLA (45μs)
+└── auto_sweep_all.py              # MoE auto-sweep script
+```
+
+---
+
+## Leaderboard URLs
+- https://gpumode.com/leaderboard/amd-mxfp4-mm
+- https://gpumode.com/leaderboard/amd-moe-mxfp4
+- https://gpumode.com/leaderboard/amd-mixed-mla
