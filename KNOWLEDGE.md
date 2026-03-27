@@ -284,20 +284,43 @@ fm.cfg_2stages = None  # Clear cached config
 
 ## MLA — Detailed Findings
 
-### Status: 45μs, need 33μs
+### Status: ~40μs benchmark (Session 9 improvement), need 33μs
 - Two ASM kernels: a16w8 (bf16 Q) and a8w8 (fp8 Q)
 - pg8 for kv≥8192 gives 8x KV cache reduction → major speedup
-- pg1 for kv≤1024 is accuracy-safe
-- pg2 for kv=1024 is risky (~4.1% mismatch, fails some seeds)
+- pg2 for kv≤1024 works with CORRECT kv_granularity=max(1, 16//ps)=8
+- Optimal num_kv_splits from Session 9 sweep: 16 for most shapes, 8 for bs≤32+kv=1024
+- Leaderboard: exp_optimal_splits.py submitted (~40.4μs benchmark)
+
+### Session 9 MLA Experiments (Mar 27)
+| Experiment | Geomean | Notes |
+|-----------|---------|-------|
+| a16w8+pg2 all sizes | 63.4μs | bs=256 kv=8192 terrible (306μs) |
+| hybrid a16w8+a8w8 pg2 | ~55μs | pg2 kv=8192 still bad (193μs) |
+| a8w8+pg2 all sizes | ~55μs | similar to hybrid |
+| optimal num_kv_splits (a16w8+pg2/a8w8+pg8) | **40.4μs** | 5% improvement from splits tuning |
+
+### Session 9 num_kv_splits Sweep Results
+| Shape | splits=4 | splits=8 | splits=16 | splits=32 | Best |
+|-------|----------|----------|-----------|-----------|------|
+| bs=4 kv=1024 | 0.102ms | **0.039ms** | 0.038ms | - | 8 |
+| bs=4 kv=8192 | 0.034ms | 0.025ms | **0.024ms** | - | 16 |
+| bs=32 kv=1024 | - | **0.040ms** | 0.040ms | - | 8 |
+| bs=32 kv=8192 | - | 0.030ms | **0.027ms** | 0.030ms | 16 |
+| bs=64 kv=1024 | - | 0.047ms | **0.042ms** | 0.043ms | 16 |
+| bs=64 kv=8192 | - | 0.036ms | **0.034ms** | 0.035ms | 16 |
+| bs=256 kv=1024 | - | 0.059ms | **0.058ms** | 0.060ms | 16 |
+| bs=256 kv=8192 | - | 0.051ms | **0.046ms** | 0.050ms | 16 |
 
 ### MLA Dead Ends
 - pg2+pg8 (41μs benchmark): FAILS leaderboard secret seed
+- pg2 for kv=8192 all (193μs for bs=256): too many pages vs pg8
+- a16w8 for kv=8192 (306μs for bs=256): bf16 Q bandwidth kills it
 - pg8 for kv=1024: FAILS accuracy
 - pg4/pg16: FAIL accuracy
-- a16w8 for kv=8192: 2x slower (bf16 Q bandwidth)
 - fast_mode=True: 5-10% worse
 - MXFP4 Triton attention: 6-291x slower
 - HIP MXFP4 MLA: linker issues
+- OLD bug: kv_granularity=max(PAGE_SIZE, 16) is WRONG, must be max(1, 16//PAGE_SIZE)
 
 ---
 
