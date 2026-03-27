@@ -220,7 +220,7 @@ S2: moe_ck2stages_gemm2_256x128x128x128_1x4_MulABScaleExpertWeightShuffled_v3_Ns
 
 ### MoE Injection Attempts (Session 8)
 - **v1** (inject_fc0c54bb.py): 342μs — injection didn't fire; heuristic default sets kernelName so `if not kernelName` check skipped the override
-- **v2** (inject_fc0c54bb_v2.py): PENDING — unconditional d>=2048 override, bypasses kernelName check, has debug prints `INJECT_D2048:`
+- **v2** (inject_fc0c54bb_v2.py): 342μs — injection CONFIRMED firing (`INJECT_D2048: s1=256x128 s2=256x128`) but **NO improvement**. The 256x128 v3 kernels perform identically to the default heuristic. The d=2048 bottleneck is fundamentally memory-bound, not kernel-selection-bound.
 
 ### MoE What Works
 - `submission_inject_metadata.py`: OPUS + CK injection for E≤64 d<2048 = **167μs**
