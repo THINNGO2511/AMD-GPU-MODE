@@ -1,11 +1,10 @@
 #!POPCORN leaderboard amd-mixed-mla
 #!POPCORN gpu MI355X
 """
-MLA — pg2 with "fix": the top competitor's file is "pg2_fix".
-Try various fixes for the accuracy issue that causes ranked failures:
-1. kv_granularity=PAGE_SIZE (not 16)
-2. More splits to reduce per-split error
-3. Different kv_indptr handling
+MLA — pg2_fix: page_size=2 with CORRECT metadata computation.
+Key fix: kv_granularity = max(1, 16 // page_size) = 8, NOT max(page_size, 16) = 16.
+Also: kv_indptr counts PAGES not tokens, kv_last_page_lens set correctly.
+Combined with fused Q fp8 quant.
 """
 import torch
 import triton
@@ -18,8 +17,10 @@ from aiter import get_mla_metadata_info_v1, get_mla_metadata_v1
 FP8_DTYPE = aiter_dtypes.fp8
 PAGE_SIZE = 2
 _FP8_MAX = float(torch.finfo(FP8_DTYPE).max)
+
 _meta_cache = {}
 _alloc_cache = {}
+
 
 @triton.jit
 def _q_amax_kernel(q_ptr, amax_ptr, N, BLOCK: tl.constexpr):
@@ -29,8 +30,10 @@ def _q_amax_kernel(q_ptr, amax_ptr, N, BLOCK: tl.constexpr):
     x = tl.load(q_ptr + offs, mask=mask, other=0.0).to(tl.float32)
     tl.atomic_max(amax_ptr, tl.max(tl.abs(x)))
 
+
 @triton.jit
-def _q_to_fp8_kernel(q_ptr, out_ptr, scale_ptr, amax_ptr, FP8_MAX: tl.constexpr, N, BLOCK: tl.constexpr):
+def _q_to_fp8_kernel(q_ptr, out_ptr, scale_ptr, amax_ptr,
+                     FP8_MAX: tl.constexpr, N, BLOCK: tl.constexpr):
     amax = tl.load(amax_ptr)
     amax = tl.where(amax < 1e-12, 1e-12, amax)
     scale = amax / FP8_MAX
@@ -40,43 +43,81 @@ def _q_to_fp8_kernel(q_ptr, out_ptr, scale_ptr, amax_ptr, FP8_MAX: tl.constexpr,
     offs = pid * BLOCK + tl.arange(0, BLOCK)
     mask = offs < N
     x = tl.load(q_ptr + offs, mask=mask, other=0.0).to(tl.float32)
-    tl.store(out_ptr + offs, (x / scale).to(out_ptr.dtype.element_ty), mask=mask)
+    x = x / scale
+    x = tl.clamp(x, -FP8_MAX, FP8_MAX)
+    tl.store(out_ptr + offs, x.to(out_ptr.dtype.element_ty), mask=mask)
+
 
 def custom_kernel(data: input_t) -> output_t:
     q, kv_data, qo_indptr, kv_indptr, config = data
+
     batch_size = config["batch_size"]
-    nq, nkv = config["num_heads"], config["num_kv_heads"]
-    dq, dv = config["qk_head_dim"], config["v_head_dim"]
-    q_seq_len, sm_scale = config["q_seq_len"], config["sm_scale"]
+    nq = config["num_heads"]
+    nkv = config["num_kv_heads"]
+    dq = config["qk_head_dim"]
+    dv = config["v_head_dim"]
+    q_seq_len = config["q_seq_len"]
+    sm_scale = config["sm_scale"]
     kv_seq_len = config["kv_seq_len"]
 
     total_kv = batch_size * kv_seq_len
-    num_pages = total_kv // PAGE_SIZE
-    # Use more splits for better accuracy
-    num_kv_splits = 32  # More splits for better accuracy with pg2
+    if total_kv <= 4096:
+        num_kv_splits = 8
+    else:
+        num_kv_splits = 16
 
     cache_key = (batch_size, kv_seq_len, num_kv_splits)
     if cache_key not in _meta_cache:
-        kv_indptr_pages = kv_indptr // PAGE_SIZE
-        seq_lens = kv_indptr[1:] - kv_indptr[:-1]
-        kv_last_page_len = (seq_lens % PAGE_SIZE).to(torch.int32)
-        kv_last_page_len = torch.where(kv_last_page_len == 0, PAGE_SIZE, kv_last_page_len)
+        # === pg2_fix: compute paged kv_indptr and kv_last_page_lens ===
+        seq_lens_kv = kv_indptr[1:] - kv_indptr[:-1]  # token lengths per request
+        num_pages_per_req = (seq_lens_kv + PAGE_SIZE - 1) // PAGE_SIZE
+        kv_indptr_paged = torch.zeros(batch_size + 1, dtype=torch.int32, device="cuda")
+        kv_indptr_paged[1:] = torch.cumsum(num_pages_per_req, dim=0)
 
-        info = get_mla_metadata_info_v1(batch_size, q_seq_len, nq, FP8_DTYPE, FP8_DTYPE,
-            is_sparse=False, fast_mode=False, num_kv_splits=num_kv_splits, intra_batch_mode=True)
+        kv_last_page_lens = (seq_lens_kv % PAGE_SIZE).to(torch.int32)
+        kv_last_page_lens = torch.where(kv_last_page_lens == 0, PAGE_SIZE, kv_last_page_lens)
+
+        total_pages = int(kv_indptr_paged[-1].item())
+
+        # === KEY FIX: kv_granularity = max(1, 16 // page_size) = 8 ===
+        kv_granularity = max(1, 16 // PAGE_SIZE)
+
+        info = get_mla_metadata_info_v1(
+            batch_size, q_seq_len, nq, FP8_DTYPE, FP8_DTYPE,
+            is_sparse=False, fast_mode=False,
+            num_kv_splits=num_kv_splits, intra_batch_mode=True,
+        )
         work = [torch.empty(s, dtype=t, device="cuda") for s, t in info]
-        (wm, wi, wis, ri, rfm, rpm) = work
-        # FIX: use kv_granularity=PAGE_SIZE instead of 16
-        get_mla_metadata_v1(qo_indptr, kv_indptr_pages, kv_last_page_len,
-            nq // nkv, nkv, True, wm, wis, wi, ri, rfm, rpm,
-            page_size=PAGE_SIZE, kv_granularity=PAGE_SIZE,
-            max_seqlen_qo=q_seq_len, uni_seqlen_qo=q_seq_len,
-            fast_mode=False, max_split_per_batch=num_kv_splits,
-            intra_batch_mode=True, dtype_q=FP8_DTYPE, dtype_kv=FP8_DTYPE)
-        kv_indices = torch.arange(num_pages, dtype=torch.int32, device="cuda")
-        _meta_cache[cache_key] = (wm, wi, wis, ri, rfm, rpm, kv_indices, kv_last_page_len, kv_indptr_pages)
+        (work_metadata, work_indptr, work_info_set,
+         reduce_indptr, reduce_final_map, reduce_partial_map) = work
 
-    (wm, wi, wis, ri, rfm, rpm, kv_indices, kv_last_page_len, kv_indptr_pages) = _meta_cache[cache_key]
+        get_mla_metadata_v1(
+            qo_indptr, kv_indptr_paged, kv_last_page_lens,
+            nq // nkv, nkv, True,
+            work_metadata, work_info_set, work_indptr,
+            reduce_indptr, reduce_final_map, reduce_partial_map,
+            page_size=PAGE_SIZE,
+            kv_granularity=kv_granularity,  # FIXED: 8, not 16
+            max_seqlen_qo=q_seq_len,
+            uni_seqlen_qo=q_seq_len,
+            fast_mode=False,
+            max_split_per_batch=num_kv_splits,
+            intra_batch_mode=True,
+            dtype_q=FP8_DTYPE,
+            dtype_kv=FP8_DTYPE,
+        )
+
+        kv_indices = torch.arange(total_pages, dtype=torch.int32, device="cuda")
+
+        _meta_cache[cache_key] = (
+            work_metadata, work_indptr, work_info_set,
+            reduce_indptr, reduce_final_map, reduce_partial_map,
+            kv_indices, kv_last_page_lens, kv_indptr_paged,
+        )
+
+    (work_metadata, work_indptr, work_info_set,
+     reduce_indptr, reduce_final_map, reduce_partial_map,
+     kv_indices, kv_last_page_lens, kv_indptr_paged) = _meta_cache[cache_key]
 
     alloc_key = (q.shape[0], nq, dv, dq)
     if alloc_key not in _alloc_cache:
@@ -84,25 +125,47 @@ def custom_kernel(data: input_t) -> output_t:
             torch.empty((q.shape[0], nq, dv), dtype=torch.bfloat16, device="cuda"),
             torch.zeros(1, dtype=torch.float32, device="cuda"),
             torch.empty(1, dtype=torch.float32, device="cuda"),
-            torch.empty(q.shape[0] * nq * dq, dtype=FP8_DTYPE, device="cuda"))
+            torch.empty(q.shape[0] * nq * dq, dtype=FP8_DTYPE, device="cuda"),
+        )
     o, amax_buf, scale_buf, q_fp8_flat = _alloc_cache[alloc_key]
 
     kv_buffer_fp8, kv_scale = kv_data["fp8"]
-    kv_buffer_4d = kv_buffer_fp8.view(-1, PAGE_SIZE, nkv, kv_buffer_fp8.shape[-1])
+    # Reshape to paged format: (num_pages, page_size, nkv, dim)
+    num_pages = total_kv // PAGE_SIZE
+    kv_buffer_4d = kv_buffer_fp8.view(num_pages, PAGE_SIZE, nkv, kv_buffer_fp8.shape[-1])
 
+    # Fused Q fp8 quantization
     N = q.numel()
     BLOCK = 4096
     grid = ((N + BLOCK - 1) // BLOCK,)
     amax_buf.zero_()
     _q_amax_kernel[grid](q, amax_buf, N, BLOCK=BLOCK)
-    _q_to_fp8_kernel[grid](q, q_fp8_flat, scale_buf, amax_buf, FP8_MAX=_FP8_MAX, N=N, BLOCK=BLOCK)
+    _q_to_fp8_kernel[grid](q, q_fp8_flat, scale_buf, amax_buf,
+                           FP8_MAX=_FP8_MAX, N=N, BLOCK=BLOCK)
+    q_fp8 = q_fp8_flat.view(q.shape[0], nq, dq)
 
     mla_decode_fwd(
-        q_fp8_flat.view(q.shape[0], nq, dq), kv_buffer_4d, o,
-        qo_indptr, kv_indptr_pages, kv_indices, kv_last_page_len,
-        q_seq_len, page_size=PAGE_SIZE, nhead_kv=nkv,
-        sm_scale=sm_scale, logit_cap=0.0, num_kv_splits=num_kv_splits,
-        q_scale=scale_buf, kv_scale=kv_scale, intra_batch_mode=True,
-        work_meta_data=wm, work_indptr=wi, work_info_set=wis,
-        reduce_indptr=ri, reduce_final_map=rfm, reduce_partial_map=rpm)
+        q_fp8,
+        kv_buffer_4d,
+        o,
+        qo_indptr,
+        kv_indptr_paged,  # PAGED indptr
+        kv_indices,
+        kv_last_page_lens,
+        q_seq_len,
+        page_size=PAGE_SIZE,
+        nhead_kv=nkv,
+        sm_scale=sm_scale,
+        logit_cap=0.0,
+        num_kv_splits=num_kv_splits,
+        q_scale=scale_buf,
+        kv_scale=kv_scale,
+        intra_batch_mode=True,
+        work_meta_data=work_metadata,
+        work_indptr=work_indptr,
+        work_info_set=work_info_set,
+        reduce_indptr=reduce_indptr,
+        reduce_final_map=reduce_final_map,
+        reduce_partial_map=reduce_partial_map,
+    )
     return o

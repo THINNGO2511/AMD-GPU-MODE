@@ -377,6 +377,147 @@ AMD-GPU-MODE/
 
 ---
 
+## MoE Internal Architecture (from source reading)
+
+### Profiling Breakdown (bs=16, E=257, d=256)
+- stage1 CK GEMM: **41%** of kernel time (biggest target)
+- fused_dynamic_mxfp4_quant_moe_sort: **28%** (called 2x per inference)
+- stage2 CK GEMM: **23%**
+- moe_sorting C++ kernel: **8%** (tiny)
+
+### Key Internal Details
+- `fused_moe_` is a C++ torch op (`torch.ops.aiter.fused_moe_`), calls Python functions internally
+- `fused_moe_2stages` source: 242 lines, handles quant path selection, calls stage1/stage2
+- `token_num_quant_moe_sort_switch = 1024` — LOCAL var in fused_moe_2stages
+  - For token_num<=1024: uses fused quant+sort kernel
+  - For token_num>1024: uses separate quant + moe_mxfp4_sort
+- `_moe_sorting_impl` (42 lines): allocates 5 tensors per call, calls moe_sorting_opus_fwd
+  - Returns: (sorted_ids[int32], sorted_weights[fp32], sorted_expert_ids[int32], num_valid_ids[int32,2], moe_buf[bf16])
+- **Cannot bypass C++ wrapper** — causes GPU memory faults on repeated calls
+
+### CSV Key Format (13 fields, exact match)
+`cu_num, token, model_dim, inter_dim, expert, topk, act_type, dtype, q_dtype_a, q_dtype_w, q_type, use_g1u1, doweight_stage1`
+
+### Available FP4 Stage1 Kernel Tiles (from CSV)
+- `64x32x32x128_1x1` (best for small est_m)
+- `256x32x128x128_1x4` (best for medium est_m like bs=64/128)
+- `256x64x128x128_1x4` (WORSE for E=33 bs=512 — don't use for d<2048)
+- `256x128x128x128_1x4` (only for token≥2048 or d=2048 from fc0c54bb)
+
+### MoE Environment Variables
+- `AITER_USE_NT`: -1=auto, 0=off, 1=on
+- `AITER_KSPLIT`: 0=auto
+- `AITER_CONFIG_FMOE`: path to custom tuned config CSV
+- `AITER_USE_OPUS_MOE_SORTING`: 0 or 1
+- `AITER_BYPASS_TUNE_CONFIG`: 0 or 1
+
+### MoE FlyDSL (probed, not useful)
+- FlyDSL IS available: `fm.is_flydsl_available() = True`
+- Kernel name format: `flydsl_moe2_afp4_wfp4_bf16_t{block_m}x{N}x{K}_reduce`
+- Only 2 CSV entries: token=16384, E=257, block_m=64/128
+- FlyDSL _atomic and _reduce: ±3%, not significant
+- Empty kernelName crashes: `ValueError: Invalid FlyDSL kernel name:`
+
+### Runner MoE Facts
+- CU_NUM = 256 (matches dsv3 CSV)
+- PR #2414 sort optimization: ALREADY applied on runner
+- tuned_fmoe.csv: 1422 rows, cu_num=80 (wrong GPU) and cu_num=256 entries
+- Merges 3 CSVs: `tuned_fmoe.csv` + `dsv3_fp4_tuned_fmoe.csv` + `a8w8_blockscale_tuned_fmoe_qwen3_235b.csv`
+
+---
+
+## GEMM Proven Techniques (from CLAUDE.md)
+
+### gemm_a16wfp4 (BEST PATH)
+- Takes bf16 A directly, quantizes on-the-fly inside kernel. NO separate A quant needed.
+- Call: `gemm_a16wfp4(A, B_q_uint8, B_scale_unshuffled, dtype=torch.bfloat16, y=output, config=cfg)`
+- B_q must be viewed as uint8: `B_q.view(torch.uint8)`
+- B_scale must be UNSHUFFLED (raw E8M0, not e8m0_shuffle'd)
+- Per-K performance: K=512: 6.15-6.86μs, K=7168: 14.7μs (tuned), K=2048: 14.2μs, K=1536: 16μs (WORSE, use afp4wfp4)
+
+### Config Injection
+- Pass `config=dict(...)` parameter directly
+- Key params: BLOCK_SIZE_M, BLOCK_SIZE_N, BLOCK_SIZE_K, GROUP_SIZE_M, NUM_KSPLIT, SPLITK_BLOCK_SIZE, num_warps, num_stages, waves_per_eu, matrix_instr_nonkdim
+- `tl.dot_scaled`: Use `acc = tl.dot_scaled(a, sa, "e2m1", b, sb, "e2m1", acc)` (fused form, NOT `acc +=`)
+
+### gfx950 Triton Compile Options
+- `waves_per_eu`: 1 for decode (more registers), 2 for compute-heavy
+- `matrix_instr_nonkdim`: 16 for small M, 32 for medium M with large N
+- `cache_modifier`: ".cg" for decode workloads (BUT triggers "stream" error on runner)
+- `BLOCK_SIZE_K`: Always 128 for blockscale, >=256 for AFP4WFP4
+- `num_stages`: 2-3 (3 helps K=512 but kills K=2048)
+
+### A Quantization (exact match formula)
+- Scale: `(amax_int + 0x200000) & 0xFF800000` (round amax up), then `floor(log2) - 2`
+- FP4 RNE: `mant_odd = (qx >> 22) & 1; qx += val_to_add + mant_odd; qx >>= 22`
+
+### MFMA FP4 Intrinsic (PROVEN, for HIP path reference)
+- `__builtin_amdgcn_mfma_scale_f32_32x32x64_f8f6f4(a, b, c, 4, 4, 0, scale_a, 0, scale_b)`
+- Header: `#include <hip/hip_ext_ocp.h>`
+- CK actually uses `v_mfma_scale_f32_16x16x128_f8f6f4` (NOT 32x32x64)
+- Output mapping: col=tid%32, row=half*4+j+i*8 for c_reg[i*4+j]
+- L2 cache clearing: Ranked adds ~6μs per call (Benchmark 9.8μs → Ranked 16.3μs)
+
+---
+
+## MLA Proven Techniques (from CLAUDE.md)
+
+### Two ASM Kernels (pre-compiled, no JIT)
+- `mla_a8w8_qh16_qseqlen1_gqaratio16_ps.co` — fp8 Q + fp8 KV (best for large kv)
+- `mla_a16w8_qh16_m16x4_n16x1_coex0_mask1_ps.co` — bf16 Q + fp8 KV (faster for small kv)
+
+### pg2_fix Formula (PR #1950)
+1. kv_indptr counts PAGES not tokens: `kv_indptr_paged[1:] = cumsum((seq_lens + ps - 1) // ps)`
+2. kv_last_page_lens: `seq_lens % ps`, replace 0 with ps
+3. kv_granularity: `max(1, 16 // page_size)` = 8 for pg2, 2 for pg8
+4. kv_buffer reshaped: `(num_pages, page_size, nkv, dim)`
+5. kv_indices: `arange(total_pages)` not `arange(total_tokens)`
+
+### Fused Q fp8 Quant (2 Triton kernels vs 6 PyTorch ops)
+- `_q_amax_kernel`: block-parallel abs+max with atomic_max
+- `_q_to_fp8_kernel`: read amax, compute scale, divide+clamp+cast
+
+### Key Constraints
+- ASM kernel: kPageSize=1 hardcoded. pg2/pg8 work via metadata trick
+- 3-buffer KV layout: NOT available in current aiter version
+- num_kv_splits: 8 for total_kv<=8192, 16 for larger. 32 is too much overhead
+- Pre-allocate: output tensor, amax_buf, scale_buf, q_fp8_flat — reuse across calls
+
+---
+
+## Session 3 Research Findings (Mar 23)
+
+### GEMM Autotune Warmup
+- eval.py leaderboard mode only warms tests[0] shape
+- Other 5 shapes trigger Triton JIT → fixed by pre-warming all shapes
+
+### MoE Session 3 Dead Ends
+- 256x64x128x128 stage1: 30% WORSE for E=33 bs=512
+- 64x128x128x128 v3 stage2: 5% WORSE
+- AITER_USE_NT=0: slightly worse for E=257
+- CU_NUM=256: already correct
+- All env vars tested: no improvement found
+
+---
+
+## Competitor Intelligence
+| Rank | User | GEMM | MoE | MLA | Technique |
+|------|------|------|-----|-----|-----------|
+| 1 | HorizonLiang | **4.36μs** | 148μs | — | Fundamentally different approach? |
+| 1 | Ananda Sai A | 8.1μs | **110μs** | **33μs** | pg2_fix all sizes, v42, 293 subs |
+| 2 | Nicky Pochinkov | — | 152μs | 33.4μs | Very close to #1 MLA |
+| 2 | josusanmartin | **7.8μs** | 127μs | 43.5μs | 3861 subs (automated sweeping) |
+| ~10 | threshold | ~9μs | ~136μs | ~50μs | — |
+| us | noobmaster69_og | 16.5μs | 169μs | 45μs | |
+
+### Submission Filename Hints
+- `submission_v75_pg8_8k` (Danishlynx, MLA #1, 29μs) — pg8 for 8k shapes
+- `v1271_e33_no_nt` (josusanmartin, MoE) — E=33 specific, no NT loads, 1271 versions
+- `submission_sagemath_fft` (GEMM) — FFT approach
+- `cfg_257k2_33k2_16128_blockmwide_stage2_sepqsort` (Ryan Mathieu) — per-shape configs
+
+---
+
 ## Leaderboard URLs
 - https://gpumode.com/leaderboard/amd-mxfp4-mm
 - https://gpumode.com/leaderboard/amd-moe-mxfp4
