@@ -1,0 +1,225 @@
+﻿chatId,authorName,avatar,content,attachments,embeds,date,referenceMessage,referenceMessageDate,referenceMessageAuthor
+1483574012771565823,s1r_o,https://cdn.discordapp.com/avatars/489144435032981515/7d6910fe0d4c25d80eb92ae36da90163.png,it's per problem,,,2026/03/17 14:13,,,
+1483574080115576953,s1r_o,https://cdn.discordapp.com/avatars/489144435032981515/7d6910fe0d4c25d80eb92ae36da90163.png,"let me increase test to 10, the queue seems fine",,,2026/03/17 14:13,,,
+1483581131533320345,jdbartlett96,https://cdn.discordapp.com/avatars/496142230197895178/null.png,"Thank you!! The queue was absolutely killing me, infinitely more viable to test now",,,2026/03/17 14:41,,,
+1483588330968055828,jaefosho,https://cdn.discordapp.com/avatars/192381685126529025/null.png,Yes.,,,2026/03/17 15:10,"Thank you for this, 6/h might be overdoing it since there is basically no other way to test your code but I believe this is a great step forward",2026-03-17T20:48:01.709000+00:00,rikikooo
+1483589425383477268,krishnapinnaka,https://cdn.discordapp.com/avatars/793368865518125066/null.png,"Does anyone know if the submissions that are not valid as per https://gist.github.com/hargup/4897f33df0d2425ac4c8c99dc8f6ec00 
+ will still show up in the leaderboard?",,,2026/03/17 15:14,,,
+1483598926497185894,samxuality,https://cdn.discordapp.com/avatars/515025350271565825/2620d0628a162135f0cd38d39e15e117.png,"I'm looking in the AMD developer cloud digitalocean for the MI355X access, but I don't see it. Are we supposed to have access to it?",https://cdn.discordapp.com/attachments/1359640791525490768/1483598926304252015/Screenshot_2026-03-17_at_18.52.20.png?ex=69c4672b&is=69c315ab&hm=c41282728e46567e1ef6d9112ada661e081d1539c8c00ea16cf5ccff8d516370&,,2026/03/17 15:52,,,
+1483599811562442975,jaefosho,https://cdn.discordapp.com/avatars/192381685126529025/null.png,"I'm not sure if this answers your question, but you do have access to it.",https://cdn.discordapp.com/attachments/1359640791525490768/1483599811381952512/Screenshot_2026-03-17_at_6.55.50_PM.png?ex=69c467fe&is=69c3167e&hm=173642d08e7425abdaa05142f102e97448e532bc8f21eaa84aca08addf17ea7e&,,2026/03/17 15:55,"I'm looking in the AMD developer cloud digitalocean for the MI355X access, but I don't see it. Are we supposed to have access to it?",2026-03-17T22:52:28.012000+00:00,samxuality
+1483600556248535131,samxuality,https://cdn.discordapp.com/avatars/515025350271565825/2620d0628a162135f0cd38d39e15e117.png,That's not quite what I mean - I want access to do some precompilation because some of my submissions kept timing out (even before the bugs),,,2026/03/17 15:58,"I'm not sure if this answers your question, but you do have access to it.",2026-03-17T22:55:59.028000+00:00,jaefosho
+1483600650410655865,jaefosho,https://cdn.discordapp.com/avatars/192381685126529025/null.png,"Oh nvm, please ignore the above.",,,2026/03/17 15:59,That's not quite what I mean - I want access to do some precompilation because some of my submissions kept timing out (even before the bugs),2026-03-17T22:58:56.575000+00:00,samxuality
+1483602293717733608,gau.nernst,https://cdn.discordapp.com/avatars/349565795711451146/58a1dd8fa3331fd918e10b828fadec8c.png,U can compile the code on CPU using the official Docker image,,,2026/03/17 16:05,That's not quite what I mean - I want access to do some precompilation because some of my submissions kept timing out (even before the bugs),2026-03-17T22:58:56.575000+00:00,samxuality
+1483602771721847015,gau.nernst,https://cdn.discordapp.com/avatars/349565795711451146/58a1dd8fa3331fd918e10b828fadec8c.png,@Samuel Xu here,,,2026/03/17 16:07,"compile HIP kernels on CPU-only machine, with Docker
+https://gist.github.com/gau-nernst/5f81dbb753a0afba7f69144e3af386eb
+cc @Fluudgate",2026-03-11T12:42:01.563000+00:00,gau.nernst
+1483602944355074181,zephyrzhao_99812,https://cdn.discordapp.com/avatars/1287258612422676484/null.png,Is that possible to also support AMD's profiling tools as NVIDIA's one? It's pretty hard to get access to a profilable MI355X on the market,,,2026/03/17 16:08,,,
+1483603697018601632,samxuality,https://cdn.discordapp.com/avatars/515025350271565825/2620d0628a162135f0cd38d39e15e117.png,Thank you!!,,,2026/03/17 16:11,@Samuel Xu here,2026-03-17T23:07:44.785000+00:00,gau.nernst
+1483626698183409725,vyomakesh,https://cdn.discordapp.com/avatars/573560935487111169/2433a518aef69a845e178597f6edca86.png,"yes we would love to have this, especially @Elliot Arledgewould love it and I’ve sent a request but it still hasn’t been accepted 🥲",,,2026/03/17 17:42,I think fully iterating here on AMD hardware would indeed be hard but if you’re writing competitive code perhaps @Guruprasad-mp can hook you up with ssh hardware,2026-03-17T20:50:15.516000+00:00,marksaroufim
+1483638187883761704,josusanmartin,https://cdn.discordapp.com/avatars/270387034219216907/d5fe17f0b5e8736e3a7ad9a1c6591373.png,Would it be possible to allow one submission per hour per exercise? Rather than sharing the same rate limit between the 3?,,,2026/03/17 18:28,,,
+1483638786318405632,s1r_o,https://cdn.discordapp.com/avatars/489144435032981515/7d6910fe0d4c25d80eb92ae36da90163.png,it already should be per exercise,,,2026/03/17 18:30,Would it be possible to allow one submission per hour per exercise? Rather than sharing the same rate limit between the 3?,2026-03-18T01:28:28.656000+00:00,josusanmartin
+1483653894218190898,elliotarledge,https://cdn.discordapp.com/avatars/535232903521501184/315845d96b1dc44b4618e574cc85db80.png,we would love some!,,,2026/03/17 19:30,"yes we would love to have this, especially @Elliot Arledgewould love it and I’ve sent a request but it still hasn’t been accepted 🥲",2026-03-18T00:42:49.298000+00:00,vyomakesh
+1483664547762929684,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,"hi folks, we've been noticing way too many reward hacks on the MLA problem https://www.gpumode.com/leaderboard/765?tab=rankings - so @daniel huang and I discussed it and we're upgrading the eval and clearing all submissions to that leaderboard shortly, we apologize for the inconvenience, please make sure to check whether your new kernels are ""reward hacky"" and resubmit",,"Title: amd-mixed-mla | GPU MODE
+Description: Ranking for amd-mixed-mla - participate in our kernel competitions!",2026/03/17 20:13,,,
+1483670459558920284,vyomakesh,https://cdn.discordapp.com/avatars/573560935487111169/2433a518aef69a845e178597f6edca86.png,could you please accept our fren request 🙏,,,2026/03/17 20:36,"Yes, you are welcome!! Please DM me the problem you are facing.",2026-03-14T15:06:20.107000+00:00,guruprasadmp_41917
+1483671161488539750,ooousay,https://cdn.discordapp.com/avatars/348585670329237505/a2bd8ec0273bb549ffa61342bbb2b9d9.png,"Thanks for the update, is this a one hour downtime or an overnight downtime?",,,2026/03/17 20:39,"hi folks, we've been noticing way too many reward hacks on the MLA problem https://www.gpumode.com/leaderboard/765?tab=rankings - so @daniel huang and I discussed it and we're upgrading the eval and clearing all submissions to that leaderboard shortly, we apologize for the inconvenience, please make sure to check whether your new kernels are ""reward hacky"" and resubmit",2026-03-18T03:13:13.341000+00:00,marksaroufim
+1483673710450708642,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,"no downtime, it's done!",,,2026/03/17 20:49,,,
+1483676219357659278,josusanmartin,https://cdn.discordapp.com/avatars/270387034219216907/d5fe17f0b5e8736e3a7ad9a1c6591373.png,"I've re-submitted my previous legit code, and it errored out. I feel like there is something wrong.",,,2026/03/17 20:59,"no downtime, it's done!",2026-03-18T03:49:37.896000+00:00,marksaroufim
+1483676693976711170,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,hmm lemme see 1s,,,2026/03/17 21:01,,,
+1483678123856887960,josusanmartin,https://cdn.discordapp.com/avatars/270387034219216907/d5fe17f0b5e8736e3a7ad9a1c6591373.png,"Ranking is empty, so I assume that I'm not alone.",https://cdn.discordapp.com/attachments/1359640791525490768/1483678123190124624/Screenshot_2026-03-17_at_22.06.44.png?ex=69c4082d&is=69c2b6ad&hm=365dc2e1d0ffa9a131364fe11c3b138985898ce2f1eb9be451afeb3cc84b916b&,,2026/03/17 21:07,,,
+1483700232612221130,oofbaroomf,https://cdn.discordapp.com/avatars/861482136124129301/b0ac2fc97a31529193037e4fa015b040.png,You aren't - struggling with this too,,,2026/03/17 22:35,,,
+1483701121666121829,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,"Daniel is looking into this, we'll give an update soon",,,2026/03/17 22:38,,,
+1483701142230794240,oofbaroomf,https://cdn.discordapp.com/avatars/861482136124129301/b0ac2fc97a31529193037e4fa015b040.png,Thanks!,,,2026/03/17 22:38,,,
+1483743905118949489,sss022414,https://cdn.discordapp.com/avatars/1414793682401366081/42b1e6e764243d9c5a9d83c32bf874a2.png,"So, does each operator advance individually in the end?",,,2026/03/18 01:28,,,
+1483746538059595867,luyuzhang_38202,https://cdn.discordapp.com/avatars/1389194639369699401/null.png,I've come across the same issue too. May I ask if it's not permitted to use load_inline for HIP-level optimization?,,,2026/03/18 01:39,"Does anyone know what the meaning of this error with popcorn cli:
+```
+Application error: Server returned status 500 Internal Server Error: Your code contains work on another stream. This is not allowed and may result in your disqualification. If you think this is a mistake, please contact us.
+```
+Resolved! Thx!",2026-03-17T20:32:25.881000+00:00,zephyrzhao_99812
+1483798187947987126,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,We’ve had many many people successfully use load_inline both for these problems and the older AMD problems,,,2026/03/18 05:04,I've come across the same issue too. May I ask if it's not permitted to use load_inline for HIP-level optimization?,2026-03-18T08:39:01.351000+00:00,luyuzhang_38202
+1483836411781058681,lynn4400,https://cdn.discordapp.com/avatars/272374415453454337/4b59d6e44f3d715f160ec93c58b120f5.png,"[amd mxfp4 gemm ]
+i am testing some submissions again and i noticed that they have missmatches ,  something changed? or",,,2026/03/18 07:36,,,
+1483837640938885271,arseniivanov,https://cdn.discordapp.com/avatars/772751219411517461/b2240e25c51a8bb8984cb7cfd396c073.png,"There was a change to use bankers rounding in the mxfp4 quantization about a week ago, you should pull down new reference",,,2026/03/18 07:41,"[amd mxfp4 gemm ]
+i am testing some submissions again and i noticed that they have missmatches ,  something changed? or",2026-03-18T14:36:08.916000+00:00,lynn4400
+1483837906173956227,lynn4400,https://cdn.discordapp.com/avatars/272374415453454337/4b59d6e44f3d715f160ec93c58b120f5.png,"ah so its new reference , its the one on the website updated?:)",,,2026/03/18 07:42,,,
+1483838157287067698,arseniivanov,https://cdn.discordapp.com/avatars/772751219411517461/b2240e25c51a8bb8984cb7cfd396c073.png,dont know i only use cli,,,2026/03/18 07:43,,,
+1483838348345737497,lynn4400,https://cdn.discordapp.com/avatars/272374415453454337/4b59d6e44f3d715f160ec93c58b120f5.png,thanks :D,,,2026/03/18 07:43,,,
+1483838372454727821,lynn4400,https://cdn.discordapp.com/avatars/272374415453454337/4b59d6e44f3d715f160ec93c58b120f5.png,i look into this,,,2026/03/18 07:43,,,
+1483838690559135895,nitizkhanal,https://cdn.discordapp.com/avatars/378719546342899713/68f5ae7a73fb1c1c2e67e6527c759239.png,has this been solved? still getting errors,,,2026/03/18 07:45,"I've re-submitted my previous legit code, and it errored out. I feel like there is something wrong.",2026-03-18T03:59:36.066000+00:00,josusanmartin
+1483839384506601522,jaefosho,https://cdn.discordapp.com/avatars/192381685126529025/null.png,I've been able to test/benchmark successfully.,,,2026/03/18 07:47,has this been solved? still getting errors,2026-03-18T14:45:12.219000+00:00,nitizkhanal
+1483850740794658937,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,"should be mitigated, let @daniel huang and me know if you run into any more issues",,,2026/03/18 08:33,,,
+1483851885961154715,danielhuang_12953,https://cdn.discordapp.com/avatars/1354693822055055441/7ce6623822e6444ea5118e637d85935d.png,"Hi folks, the mla is pretty precision sensitive based on our internal test, be careful to implement it. And let's keep touch, thanks",,,2026/03/18 08:37,,,
+1483857390402146325,josusanmartin,https://cdn.discordapp.com/avatars/270387034219216907/d5fe17f0b5e8736e3a7ad9a1c6591373.png,"How should we interpret it when the result is Finished but there is no Run Report?
+
+I'm resubmitting my previous best result to mla.",https://cdn.discordapp.com/attachments/1359640791525490768/1483857390150353137/image.png?ex=69c40662&is=69c2b4e2&hm=e184b33d0c8b251c593536b5af176c24724d9eb2fe07a6207e0cc977c155e728&,,2026/03/18 08:59,,,
+1483878460119056595,danishlynx,https://cdn.discordapp.com/avatars/626686759631192075/a349cf47cb11d18c0a8e2d1f53ffed31.png,"chineseman"" has 4.3μs on all 3 leaderboards, looks like the correctness check is being bypassed. Can organizers review?",https://cdn.discordapp.com/attachments/1359640791525490768/1483878459704086619/image.png?ex=69c41a01&is=69c2c881&hm=914d31fea1b0c57ba3eb341f7e137748826005a4fda781381609e55b1a32d5bf&,,2026/03/18 10:23,,,
+1483879304684114042,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,We’ve tried reaching out to them and they’re not responsive. We’ll likely need to ban. Please ignore their submissions,,,2026/03/18 10:26,"chineseman"" has 4.3μs on all 3 leaderboards, looks like the correctness check is being bypassed. Can organizers review?",2026-03-18T17:23:14.021000+00:00,danishlynx
+1483879427535278201,danishlynx,https://cdn.discordapp.com/avatars/626686759631192075/a349cf47cb11d18c0a8e2d1f53ffed31.png,thanks a lot !!,,,2026/03/18 10:27,We’ve tried reaching out to them and they’re not responsive. We’ll likely need to ban. Please ignore their submissions,2026-03-18T17:26:35.381000+00:00,marksaroufim
+1483891063918694602,noobmaster69_og,https://cdn.discordapp.com/avatars/704178379188076665/0693acc0ece8bc3ef4fec79efbcfcb5b.png,lmao what did he do? :)))),,,2026/03/18 11:13,"chineseman"" has 4.3μs on all 3 leaderboards, looks like the correctness check is being bypassed. Can organizers review?",2026-03-18T17:23:14.021000+00:00,danishlynx
+1483891069740388443,devl6,https://cdn.discordapp.com/avatars/825434419031703582/7f386fcdc3669a5043e29baaf26c86f7.png,getting their entries to run it over the guard harness,,,2026/03/18 11:13,"chineseman"" has 4.3μs on all 3 leaderboards, looks like the correctness check is being bypassed. Can organizers review?",2026-03-18T17:23:14.021000+00:00,danishlynx
+1483891096357568533,devl6,https://cdn.discordapp.com/avatars/825434419031703582/7f386fcdc3669a5043e29baaf26c86f7.png,probably already covered,,,2026/03/18 11:13,,,
+1483892100591521903,samxuality,https://cdn.discordapp.com/avatars/515025350271565825/2620d0628a162135f0cd38d39e15e117.png,I am a chinese man but I swear I'm not chineseman 😭,,,2026/03/18 11:17,,,
+1483892239297151228,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,They’re just caching all results and going crazy with the inspect module,,,2026/03/18 11:17,,,
+1483901962813440141,tensorscope,https://cdn.discordapp.com/avatars/1298670170289475677/null.png,"After the MLA refresh, the aiter ASM kernel binaries on the server do NOT support page_size > 1. Was this intentional?",,,2026/03/18 11:56,,,
+1483910294634758355,jaefosho,https://cdn.discordapp.com/avatars/192381685126529025/null.png,"Good cover up, we're onto you Sam.",,,2026/03/18 12:29,I am a chinese man but I swear I'm not chineseman 😭,2026-03-18T18:17:26.163000+00:00,samxuality
+1483961994234167448,chineseman,https://cdn.discordapp.com/avatars/347950030772240405/5d1e664daf837ce70561aab5cbb07037.png,Hey... So what're people using to ensure their AI doesn't use banned techniques in submission? Plz help 🥺,,,2026/03/18 15:55,,,
+1483962581625475133,clamper.,https://cdn.discordapp.com/avatars/163616899404529664/8dcb63fa31e5167c80ec8ee71fdf0d98.png,https://deep-reinforce.com/defense_kernel_hack.html,,,2026/03/18 15:57,,,
+1483962817991282759,chineseman,https://cdn.discordapp.com/avatars/347950030772240405/5d1e664daf837ce70561aab5cbb07037.png,Do I feed that into agents.md as what not to do? @Mark Saroufim suggested having a second agent review before submitting but I dunno how to do that,,,2026/03/18 15:58,https://deep-reinforce.com/defense_kernel_hack.html,2026-03-18T22:57:30.151000+00:00,clamper.
+1483964016903847998,clamper.,https://cdn.discordapp.com/avatars/163616899404529664/8dcb63fa31e5167c80ec8ee71fdf0d98.png,You can. I would also suggest the second review agent. You can use claude code or whatever you use to help you build out your agent harness.,,,2026/03/18 16:03,,,
+1483975313955356963,jaefosho,https://cdn.discordapp.com/avatars/192381685126529025/null.png,"The legend, this better not be Ling Long from Cluely.",,,2026/03/18 16:48,Hey... So what're people using to ensure their AI doesn't use banned techniques in submission? Plz help 🥺,2026-03-18T22:55:10.106000+00:00,chineseman
+1483975750284476517,chineseman,https://cdn.discordapp.com/avatars/347950030772240405/5d1e664daf837ce70561aab5cbb07037.png,No. That is my brother. We have different glasses,,,2026/03/18 16:49,"The legend, this better not be Ling Long from Cluely.",2026-03-18T23:48:05.775000+00:00,jaefosho
+1483976880230109215,jaefosho,https://cdn.discordapp.com/avatars/192381685126529025/null.png,We are same same but different,,,2026/03/18 16:54,No. That is my brother. We have different glasses,2026-03-18T23:49:49.804000+00:00,chineseman
+1483986105157288047,josusanmartin,https://cdn.discordapp.com/avatars/270387034219216907/d5fe17f0b5e8736e3a7ad9a1c6591373.png,"What is the evaluation doing differently from a ""benchmark"" submission to a ""leaderboard"" submission? I'm try to understand why some submissions pass one but fail the other.",https://cdn.discordapp.com/attachments/1359640791525490768/1483986104872079551/image.png?ex=69c3d582&is=69c28402&hm=addfe96feea3b25c7c0ac01ad51ba72c81c06e5888d38caaa9097644ee96851c&,,2026/03/18 17:30,,,
+1483986465917501552,danielhuang_12953,https://cdn.discordapp.com/avatars/1354693822055055441/7ce6623822e6444ea5118e637d85935d.png,we use magic to beat magic,,,2026/03/18 17:32,Hey... So what're people using to ensure their AI doesn't use banned techniques in submission? Plz help 🥺,2026-03-18T22:55:10.106000+00:00,chineseman
+1483986659589488670,danielhuang_12953,https://cdn.discordapp.com/avatars/1354693822055055441/7ce6623822e6444ea5118e637d85935d.png,"it will use completely different input by adding a seed value in leaderboard mode, but test and benchmark won't",,,2026/03/18 17:33,"What is the evaluation doing differently from a ""benchmark"" submission to a ""leaderboard"" submission? I'm try to understand why some submissions pass one but fail the other.",2026-03-19T00:30:58.598000+00:00,josusanmartin
+1483987114264756375,josusanmartin,https://cdn.discordapp.com/avatars/270387034219216907/d5fe17f0b5e8736e3a7ad9a1c6591373.png,Makes sense. Thank you.,,,2026/03/18 17:34,"it will use completely different input by adding a seed value in leaderboard mode, but test and benchmark won't",2026-03-19T00:33:10.785000+00:00,danielhuang_12953
+1483987728671571989,danielhuang_12953,https://cdn.discordapp.com/avatars/1354693822055055441/7ce6623822e6444ea5118e637d85935d.png,"and dear friends, don't forget the real big prize is in phase 2, which need more standard and professional codes, if you have a good preparation for that in phase 1, big prize of phase 2 will be much easier to be inside your home",,,2026/03/18 17:37,,,
+1483995995632177232,craenius,https://cdn.discordapp.com/avatars/669837976112726016/null.png,"for phase2, could there be a way to get dedicated GPUs and credits for them?",,,2026/03/18 18:10,,,
+1483998234547585188,danielhuang_12953,https://cdn.discordapp.com/avatars/1354693822055055441/7ce6623822e6444ea5118e637d85935d.png,sure,,,2026/03/18 18:19,,,
+1484002832247164958,vyomakesh,https://cdn.discordapp.com/avatars/573560935487111169/2433a518aef69a845e178597f6edca86.png,<a:dancingcat2:1225457919685034235>,,,2026/03/18 18:37,,,
+1484040526918586479,mumu.0567,https://cdn.discordapp.com/avatars/1481582473484959819/null.png,Can I test three operators at the same time with one account?,,,2026/03/18 21:07,,,
+1484130700985892917,guohaozhang,https://cdn.discordapp.com/avatars/428823458747777034/1df851e85d237ec6bafbb114b6eef76b.png,"just to confirm,  the current rate limit rule is:  10/h for test, 6/h for benchmark, 1/h for leaderboard, individual limiter for each problem. right?",,,2026/03/19 03:05,,,
+1484132540280209568,vyomakesh,https://cdn.discordapp.com/avatars/573560935487111169/2433a518aef69a845e178597f6edca86.png,I dont think we got any on tests,,,2026/03/19 03:12,"just to confirm,  the current rate limit rule is:  10/h for test, 6/h for benchmark, 1/h for leaderboard, individual limiter for each problem. right?",2026-03-19T10:05:32.930000+00:00,guohaozhang
+1484132712250871892,vyomakesh,https://cdn.discordapp.com/avatars/573560935487111169/2433a518aef69a845e178597f6edca86.png,@siro could we reduce the benchmark to 2-3hrs maybe,,,2026/03/19 03:13,"just to confirm,  the current rate limit rule is:  10/h for test, 6/h for benchmark, 1/h for leaderboard, individual limiter for each problem. right?",2026-03-19T10:05:32.930000+00:00,guohaozhang
+1484166827365109810,josusanmartin,https://cdn.discordapp.com/avatars/270387034219216907/d5fe17f0b5e8736e3a7ad9a1c6591373.png,Why?,,,2026/03/19 05:29,@siro could we reduce the benchmark to 2-3hrs maybe,2026-03-19T10:13:32.453000+00:00,vyomakesh
+1484167156231831694,vyomakesh,https://cdn.discordapp.com/avatars/573560935487111169/2433a518aef69a845e178597f6edca86.png,"like we wanna test again on benchmark, after we used leaderboard once we gotta wait for 6hr?",,,2026/03/19 05:30,Why?,2026-03-19T12:29:06.130000+00:00,josusanmartin
+1484176884404191362,guohaozhang,https://cdn.discordapp.com/avatars/428823458747777034/1df851e85d237ec6bafbb114b6eef76b.png,6 times per hour😂,,,2026/03/19 06:09,,,
+1484184934057771049,vyomakesh,https://cdn.discordapp.com/avatars/573560935487111169/2433a518aef69a845e178597f6edca86.png,oh,,,2026/03/19 06:41,6 times per hour😂,2026-03-19T13:09:03.915000+00:00,guohaozhang
+1484185089582567504,vyomakesh,https://cdn.discordapp.com/avatars/573560935487111169/2433a518aef69a845e178597f6edca86.png,<:oh_no:1462481672024096798>,,,2026/03/19 06:41,,,
+1484263144321716296,noobmaster69_og,https://cdn.discordapp.com/avatars/704178379188076665/0693acc0ece8bc3ef4fec79efbcfcb5b.png,"eh i have a question, what qualifies as a top 10?
+
+ like if i am ranked in 11 in mm then 9 in mla and 12 in mxfp4 then what happpens?",,,2026/03/19 11:51,,,
+1484263761710809329,vyomakesh,https://cdn.discordapp.com/avatars/573560935487111169/2433a518aef69a845e178597f6edca86.png,https://leaderboard.ooousay.com/,,,2026/03/19 11:54,"eh i have a question, what qualifies as a top 10?
+
+ like if i am ranked in 11 in mm then 9 in mla and 12 in mxfp4 then what happpens?",2026-03-19T18:51:49.882000+00:00,noobmaster69_og
+1484263794145493073,vyomakesh,https://cdn.discordapp.com/avatars/573560935487111169/2433a518aef69a845e178597f6edca86.png,we only need this ig,,,2026/03/19 11:54,,,
+1484266358744027260,alphanord,https://cdn.discordapp.com/avatars/770303574168043591/null.png,"Its a point system, point allowance is specified in the terms in luma but this leaderboard works too",,,2026/03/19 12:04,https://leaderboard.ooousay.com/,2026-03-19T18:54:17.079000+00:00,vyomakesh
+1484267051387322488,vyomakesh,https://cdn.discordapp.com/avatars/573560935487111169/2433a518aef69a845e178597f6edca86.png,Yee it’s cal init for ~3750ig in total,,,2026/03/19 12:07,"Its a point system, point allowance is specified in the terms in luma but this leaderboard works too",2026-03-19T19:04:36.260000+00:00,alphanord
+1484278784709496993,ykaitao,https://cdn.discordapp.com/avatars/1479859112207581316/null.png,"Hi All, a quick question, why the leaderboard only show my github id, not my team's name? I have a team of two people.",,,2026/03/19 12:53,,,
+1484279066495422475,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,We never implemented changing team names in the leaderboard is all. We could but in the meantime we’ll just ask you which team you’re in if you’re in the top submitters,,,2026/03/19 12:55,"Hi All, a quick question, why the leaderboard only show my github id, not my team's name? I have a team of two people.",2026-03-19T19:53:58.841000+00:00,ykaitao
+1484279370247045130,ykaitao,https://cdn.discordapp.com/avatars/1479859112207581316/null.png,"Gocha, thanks @Mark Saroufim !",,,2026/03/19 12:56,,,
+1484329990152654980,noobmaster69_og,https://cdn.discordapp.com/avatars/704178379188076665/0693acc0ece8bc3ef4fec79efbcfcb5b.png,is this updated daily @ooousay ?,,,2026/03/19 16:17,https://leaderboard.ooousay.com/,2026-03-19T18:54:17.079000+00:00,vyomakesh
+1484374624581062750,danielhuang_12953,https://cdn.discordapp.com/avatars/1354693822055055441/7ce6623822e6444ea5118e637d85935d.png,"oh that's cool, was this maintained by you? @vyom",,,2026/03/19 19:14,https://leaderboard.ooousay.com/,2026-03-19T18:54:17.079000+00:00,vyomakesh
+1484374940043186287,danielhuang_12953,https://cdn.discordapp.com/avatars/1354693822055055441/7ce6623822e6444ea5118e637d85935d.png,how often will it automatically sync with gpu mode leaderboard?,,,2026/03/19 19:16,,,
+1484374956551831602,vyomakesh,https://cdn.discordapp.com/avatars/573560935487111169/2433a518aef69a845e178597f6edca86.png,no @ooousay was the one who built it,,,2026/03/19 19:16,"oh that's cool, was this maintained by you? @vyom",2026-03-20T02:14:48.847000+00:00,danielhuang_12953
+1484374983307431967,vyomakesh,https://cdn.discordapp.com/avatars/573560935487111169/2433a518aef69a845e178597f6edca86.png,prolly like 30min,,,2026/03/19 19:16,how often will it automatically sync with gpu mode leaderboard?,2026-03-20T02:16:04.059000+00:00,danielhuang_12953
+1484374992744615966,vyomakesh,https://cdn.discordapp.com/avatars/573560935487111169/2433a518aef69a845e178597f6edca86.png,I guess,,,2026/03/19 19:16,,,
+1484375142028284104,vyomakesh,https://cdn.discordapp.com/avatars/573560935487111169/2433a518aef69a845e178597f6edca86.png,my bad its states `Data revalidates every 60 seconds from the GPU Mode API`,,,2026/03/19 19:16,,,
+1484375160176902205,vyomakesh,https://cdn.discordapp.com/avatars/573560935487111169/2433a518aef69a845e178597f6edca86.png,60 secs,,,2026/03/19 19:16,,,
+1484375204573483290,danielhuang_12953,https://cdn.discordapp.com/avatars/1354693822055055441/7ce6623822e6444ea5118e637d85935d.png,great,,,2026/03/19 19:17,,,
+1484375257790812251,vyomakesh,https://cdn.discordapp.com/avatars/573560935487111169/2433a518aef69a845e178597f6edca86.png,https://github.com/dgavriloff/amd-leaderboard,,,2026/03/19 19:17,,,
+1484393030298374224,sss022414,https://cdn.discordapp.com/avatars/1414793682401366081/42b1e6e764243d9c5a9d83c32bf874a2.png,How do I use rocprofiler-compute?I want to analyze why the current kernel is running slowly—it’s ten times slower than yours.,,,2026/03/19 20:27,,,
+1484419914469998685,devl6,https://cdn.discordapp.com/avatars/825434419031703582/7f386fcdc3669a5043e29baaf26c86f7.png,"On web submission view soon you will be able to see status ""hacked"" on hacking submissions with known methods",,,2026/03/19 22:14,,,
+1484420084226326528,devl6,https://cdn.discordapp.com/avatars/825434419031703582/7f386fcdc3669a5043e29baaf26c86f7.png,If you believe your kernel submission is falsely flagged or want to report a case that hacked kernel is not covered feel free to reach out to me,,,2026/03/19 22:15,,,
+1484421916977791076,neo.juan,https://cdn.discordapp.com/avatars/1119175470106296330/null.png,"hi,all..newbie here.",,,2026/03/19 22:22,,,
+1484421999940997170,neo.juan,https://cdn.discordapp.com/avatars/1119175470106296330/null.png,do we have a baseline of competition?,,,2026/03/19 22:23,,,
+1484424572420886528,somethingobscurefordevstuff,https://cdn.discordapp.com/avatars/354591687047381002/3adf423526f15ffa2ff3e1115b669587.png,,https://cdn.discordapp.com/attachments/1359640791525490768/1484424572055851029/IMG_4844.png?ex=69c41c5d&is=69c2cadd&hm=29f348c747263b8c384cdca0af0758243bd405adb43f8275a944cbe3a211cca8&,,2026/03/19 22:33,"On web submission view soon you will be able to see status ""hacked"" on hacking submissions with known methods",2026-03-20T05:14:46.798000+00:00,devl6
+1484446283530764378,sss022414,https://cdn.discordapp.com/avatars/1414793682401366081/42b1e6e764243d9c5a9d83c32bf874a2.png,"I discovered that popcorn-cli offers a profile mode, which is really great.",,,2026/03/19 23:59,,,
+1484446480805793983,spolonsky,https://cdn.discordapp.com/avatars/954687701486030868/null.png,"Hi guys, is there a way to run rocprofv3 profiler from our submissions? Any ideas?",,,2026/03/20 00:00,,,
+1484446563488104488,sss022414,https://cdn.discordapp.com/avatars/1414793682401366081/42b1e6e764243d9c5a9d83c32bf874a2.png,It's just that the waiting process is long,,,2026/03/20 00:00,,,
+1484447091819282514,spolonsky,https://cdn.discordapp.com/avatars/954687701486030868/null.png,does it profile kernels?,,,2026/03/20 00:02,"I discovered that popcorn-cli offers a profile mode, which is really great.",2026-03-20T06:59:33.672000+00:00,sss022414
+1484449613451624488,sss022414,https://cdn.discordapp.com/avatars/1414793682401366081/42b1e6e764243d9c5a9d83c32bf874a2.png,no，A summary of API response times on the server side,,,2026/03/20 00:12,"Hi guys, is there a way to run rocprofv3 profiler from our submissions? Any ideas?",2026-03-20T07:00:20.706000+00:00,spolonsky
+1484449777189130240,sss022414,https://cdn.discordapp.com/avatars/1414793682401366081/42b1e6e764243d9c5a9d83c32bf874a2.png,I'd also like to know how to use rocprofiler,,,2026/03/20 00:13,,,
+1484493043267666082,rikikooo,https://cdn.discordapp.com/avatars/174575676442148866/c32bb8835c18ab53726e1de80ba68694.png,@Mark Saroufim Could you consider upgrading the docker image to use rocm 7.2? I'm trying to make use of some MI355X hardware features that LLVM doesn't properly support in older versions. 7.2 works fine for what I want to do.,,,2026/03/20 03:05,,,
+1484493112758767627,rikikooo,https://cdn.discordapp.com/avatars/174575676442148866/c32bb8835c18ab53726e1de80ba68694.png,"This should be all that's needed
+```patch
+diff --git a/Dockerfile b/Dockerfile
+index cc15e9c..0f481be 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -35,8 +35,8 @@ RUN sudo groupadd -g 109 render
+
+ RUN sudo apt update -y \
+     && sudo usermod -a -G render,video runner \
+-    && wget https://repo.radeon.com/amdgpu-install/7.1/ubuntu/noble/amdgpu-install_7.1.70100-1_all.deb \
+-    && sudo apt install -y ./amdgpu-install_7.1.70100-1_all.deb \
++    && wget https://repo.radeon.com/amdgpu-install/7.2/ubuntu/jammy/amdgpu-install_7.2.70200-1_all.deb \
++    && sudo apt install -y ./amdgpu-install_7.2.70200-1_all.deb \
+     && sudo apt update -y \
+     && sudo apt install -y rocm
+```",,,2026/03/20 03:05,,,
+1484576227707850913,ooousay,https://cdn.discordapp.com/avatars/348585670329237505/a2bd8ec0273bb549ffa61342bbb2b9d9.png,"Good morning, was this error a backend thing or a problem with my submission flow: 15:07:24 UTC:
+
+  Waiting for results...
+  {""status"": ""processing"", ""elapsed_time"": 0.0}
+  {
+    ""status"": ""processing"",
+    ""elapsed_time"": 22.03
+  }
+  Application error: Server processing error: An unexpected error occurred:
+  RuntimeError | Raw Error: Failed to trigger GitHub Action. Please check the
+  configuration.",,,2026/03/20 08:35,,,
+1484576876285526106,ooousay,https://cdn.discordapp.com/avatars/348585670329237505/a2bd8ec0273bb549ffa61342bbb2b9d9.png,It counted for my hourly rate limit without giving me any result so preferably I’d like to prevent this in the future,,,2026/03/20 08:38,,,
+1484584200609730771,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,@daniel huang wdyt,,,2026/03/20 09:07,"This should be all that's needed
+```patch
+diff --git a/Dockerfile b/Dockerfile
+index cc15e9c..0f481be 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -35,8 +35,8 @@ RUN sudo groupadd -g 109 render
+
+ RUN sudo apt update -y \
+     && sudo usermod -a -G render,video runner \
+-    && wget https://repo.radeon.com/amdgpu-install/7.1/ubuntu/noble/amdgpu-install_7.1.70100-1_all.deb \
+-    && sudo apt install -y ./amdgpu-install_7.1.70100-1_all.deb \
++    && wget https://repo.radeon.com/amdgpu-install/7.2/ubuntu/jammy/amdgpu-install_7.2.70200-1_all.deb \
++    && sudo apt install -y ./amdgpu-install_7.2.70200-1_all.deb \
+     && sudo apt update -y \
+     && sudo apt install -y rocm
+```",2026-03-20T10:05:38.630000+00:00,rikikooo
+1484584250786316348,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,@siro in case he wants to make rate limits a bit more generous,,,2026/03/20 09:07,"Good morning, was this error a backend thing or a problem with my submission flow: 15:07:24 UTC:
+
+  Waiting for results...
+  {""status"": ""processing"", ""elapsed_time"": 0.0}
+  {
+    ""status"": ""processing"",
+    ""elapsed_time"": 22.03
+  }
+  Application error: Server processing error: An unexpected error occurred:
+  RuntimeError | Raw Error: Failed to trigger GitHub Action. Please check the
+  configuration.",2026-03-20T15:35:54.778000+00:00,ooousay
+1484592072622342326,somethingobscurefordevstuff,https://cdn.discordapp.com/avatars/354591687047381002/3adf423526f15ffa2ff3e1115b669587.png,plz,,,2026/03/20 09:38,@siro in case he wants to make rate limits a bit more generous,2026-03-20T16:07:47.629000+00:00,marksaroufim
+1484597521669029960,s1r_o,https://cdn.discordapp.com/avatars/489144435032981515/7d6910fe0d4c25d80eb92ae36da90163.png,yeah we can stilll increase a bit and fix this eventually,,,2026/03/20 10:00,It counted for my hourly rate limit without giving me any result so preferably I’d like to prevent this in the future,2026-03-20T15:38:29.411000+00:00,ooousay
+1484607160490004651,zephyrzhao_99812,https://cdn.discordapp.com/avatars/1287258612422676484/null.png,"Upvote, 7.2 would be nice",,,2026/03/20 10:38,@daniel huang wdyt,2026-03-20T16:07:35.666000+00:00,marksaroufim
+1484608794502762728,as_ai,https://cdn.discordapp.com/avatars/485443153663361024/f666aed75c24bc2866f6d89ad895a387.png,how did you get a diff with colors to show in a textbox?,,,2026/03/20 10:45,"This should be all that's needed
+```patch
+diff --git a/Dockerfile b/Dockerfile
+index cc15e9c..0f481be 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -35,8 +35,8 @@ RUN sudo groupadd -g 109 render
+
+ RUN sudo apt update -y \
+     && sudo usermod -a -G render,video runner \
+-    && wget https://repo.radeon.com/amdgpu-install/7.1/ubuntu/noble/amdgpu-install_7.1.70100-1_all.deb \
+-    && sudo apt install -y ./amdgpu-install_7.1.70100-1_all.deb \
++    && wget https://repo.radeon.com/amdgpu-install/7.2/ubuntu/jammy/amdgpu-install_7.2.70200-1_all.deb \
++    && sudo apt install -y ./amdgpu-install_7.2.70200-1_all.deb \
+     && sudo apt update -y \
+     && sudo apt install -y rocm
+```",2026-03-20T10:05:38.630000+00:00,rikikooo
+1484609095184158892,rikikooo,https://cdn.discordapp.com/avatars/174575676442148866/c32bb8835c18ab53726e1de80ba68694.png,"The usual markdown syntax for code blocks, with patch as the language",,,2026/03/20 10:46,,,
+1484609185265094706,rikikooo,https://cdn.discordapp.com/avatars/174575676442148866/c32bb8835c18ab53726e1de80ba68694.png,"\```patch
+text here
+```",,,2026/03/20 10:46,,,
+1484615090018975896,houdiniedo,https://cdn.discordapp.com/avatars/387240983009558530/5a7136695775c5915c45b500c93c9682.png,I would prefer 7.2 as well,,,2026/03/20 11:10,"Upvote, 7.2 would be nice",2026-03-20T17:38:49.728000+00:00,zephyrzhao_99812
+1484633361715822706,as_ai,https://cdn.discordapp.com/avatars/485443153663361024/f666aed75c24bc2866f6d89ad895a387.png,"cool, thanks",,,2026/03/20 12:22,"\```patch
+text here
+```",2026-03-20T17:46:52.472000+00:00,rikikooo
+1484661837902385353,rt_112,https://cdn.discordapp.com/avatars/1048619018115895406/null.png,"https://x.com/amanrsanger/status/2035079293257359663
+Composer 2 is strong validation for Kimi 2.5",,,2026/03/20 14:16,"Out of curiosity Mark, why the change form GPTOSS to kimi 2.5?",2026-03-13T03:27:19.886000+00:00,houdiniedo
+1484662123484282910,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,"more generally we want the results from this competition to be commercially useful, phase 1 is basically an interview for phase 2 which is when the real challenge starts",,,2026/03/20 14:17,,,
+1484662190823706737,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,"on 7.2 I think we should just pick what's the default in popular vendor libraries, @daniel huang",,,2026/03/20 14:17,,,
+1484679585189724180,nikitas_66075,https://cdn.discordapp.com/avatars/1175743509307858964/null.png,"Hello everyone, I want to participate in the AMD hardware optimization contest.
+
+I’m currently using MI300X (gfx942)
+
+Is there an MI350X / MI355X (gfx950) environment available for participants to run and benchmark kernels? Or are we just supposed to submit our work, and only then it is run on MI355X?",,,2026/03/20 15:26,,,
+1484681131751116921,ykaitao,https://cdn.discordapp.com/avatars/1479859112207581316/null.png,"Hi Team, do you know what does this error mean? 
+
+```Waiting for results...
+Application error: Server returned status 500 Internal Server Error: Your code contains work on another stream. This is not allowed and may result in your disqualification. If you think this is a mistake, please contact us.```",,,2026/03/20 15:32,,,
+1484682240087556237,ykaitao,https://cdn.discordapp.com/avatars/1479859112207581316/null.png,"As @divc13  suggested, the fix to this error is: **Remove the word ""stream"" from your code.**",,,2026/03/20 15:37,"Hi Team, do you know what does this error mean? 
+
+```Waiting for results...
+Application error: Server returned status 500 Internal Server Error: Your code contains work on another stream. This is not allowed and may result in your disqualification. If you think this is a mistake, please contact us.```",2026-03-20T22:32:45.851000+00:00,ykaitao

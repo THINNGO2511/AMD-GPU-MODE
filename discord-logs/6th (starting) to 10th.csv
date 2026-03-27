@@ -1,0 +1,246 @@
+﻿chatId,authorName,avatar,content,attachments,embeds,date,referenceMessage,referenceMessageDate,referenceMessageAuthor
+1479957112888103002,weyj4,https://cdn.discordapp.com/avatars/307196884605337600/1b01a596fe8ced104cf2fba8950d8be1.png,"noob question but are there optimizations you can make in C++ that aren't possible to implement in triton? I guess at that point it's like, are you smarter than whoever wrote the triton compiler?",,,2026/03/07 13:41,,,
+1479957137731096806,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,"this isn't right btw, FA4 was written in cute DSL",,,2026/03/07 13:41,"what i said in general a second ago:
+> im finding it hard to justify not using triton rn because FA4 was written in triton and came out earlier this week and what, im gonna think i know better than tri dao?",2026-03-07T21:40:50.818000+00:00,whoahyi
+1479957168156577883,whoahyi,https://cdn.discordapp.com/avatars/151884808555986944/61e20fa5f54eaf1b96469858b716d2c4.png,oh really,,,2026/03/07 13:41,,,
+1479957171767611496,weyj4,https://cdn.discordapp.com/avatars/307196884605337600/1b01a596fe8ced104cf2fba8950d8be1.png,are there lots of instances of people beating triton implementations with raw C++,,,2026/03/07 13:41,,,
+1479957177379586369,whoahyi,https://cdn.discordapp.com/avatars/151884808555986944/61e20fa5f54eaf1b96469858b716d2c4.png,thats embarassing,,,2026/03/07 13:41,,,
+1479957235261116590,lynn4400,https://cdn.discordapp.com/avatars/272374415453454337/4b59d6e44f3d715f160ec93c58b120f5.png,fa4 i think there is some implementation for b200 in gluon but i might be wrong,,,2026/03/07 13:41,,,
+1479957249043595529,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,"yes, browse any of the top submissions on gpumode.com for the past amd competitions, the best submissions were almost always hip",,,2026/03/07 13:41,are there lots of instances of people beating triton implementations with raw C++,2026-03-07T21:41:26.024000+00:00,weyj4
+1479957380887347240,lynn4400,https://cdn.discordapp.com/avatars/272374415453454337/4b59d6e44f3d715f160ec93c58b120f5.png,maybe we ll get gluon dialect in 2026 for amd :)) i know they are working on it,,,2026/03/07 13:42,,,
+1479957764381085889,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,they have something,,,2026/03/07 13:43,,,
+1479957810551722056,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,https://github.com/ROCm/FlyDSL,,"Title: GitHub - ROCm/FlyDSL
+Description: Contribute to ROCm/FlyDSL development by creating an account on GitHub.",2026/03/07 13:43,,,
+1479957983738990683,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,I feel like we need @Simon's help to get folks up to speed 😛,,,2026/03/07 13:44,,,
+1479958067708690522,lynn4400,https://cdn.discordapp.com/avatars/272374415453454337/4b59d6e44f3d715f160ec93c58b120f5.png,xD true,,,2026/03/07 13:44,,,
+1479958124998688879,arseniivanov,https://cdn.discordapp.com/avatars/772751219411517461/b2240e25c51a8bb8984cb7cfd396c073.png,I made a flydsl solution but its as slow as pytorch eager x) It also just looks like straight up MLIR also. Skill issue definitely but I will try to improve it,,,2026/03/07 13:45,,,
+1479958209195409469,lynn4400,https://cdn.discordapp.com/avatars/272374415453454337/4b59d6e44f3d715f160ec93c58b120f5.png,i wonder also... if we people will try IREE,,,2026/03/07 13:45,,,
+1479958594811203795,lynn4400,https://cdn.discordapp.com/avatars/272374415453454337/4b59d6e44f3d715f160ec93c58b120f5.png,how big is the eval node ?,,,2026/03/07 13:47,,,
+1479959150426587138,alphanord,https://cdn.discordapp.com/avatars/770303574168043591/null.png,guys do you have any github repos/article or anything to start understanding/learning what to search for technological watch or even ytb videos as intro pls,,,2026/03/07 13:49,,,
+1479962517525757964,whoahyi,https://cdn.discordapp.com/avatars/151884808555986944/61e20fa5f54eaf1b96469858b716d2c4.png,"honestly the amd developer docs havent been bad:
+https://rocm.docs.amd.com/en/latest/how-to/rocm-for-ai/inference-optimization/index.html",,,2026/03/07 14:02,,,
+1479962595640217725,whoahyi,https://cdn.discordapp.com/avatars/151884808555986944/61e20fa5f54eaf1b96469858b716d2c4.png,but theres a lot of poking around through different git repos and talking to claude,,,2026/03/07 14:02,,,
+1479963529560719481,whoahyi,https://cdn.discordapp.com/avatars/151884808555986944/61e20fa5f54eaf1b96469858b716d2c4.png,quick i need someone to offer me a job before theo catches up to me,,,2026/03/07 14:06,,,
+1479963648394002615,theo3579,https://cdn.discordapp.com/avatars/482975178482253844/26b7cd3c19af273b29b5a0dbe65d4404.png,lmaoo,,,2026/03/07 14:07,,,
+1479963656157401249,theo3579,https://cdn.discordapp.com/avatars/482975178482253844/26b7cd3c19af273b29b5a0dbe65d4404.png,bro noticed,,,2026/03/07 14:07,,,
+1479964987194736805,theo3579,https://cdn.discordapp.com/avatars/482975178482253844/26b7cd3c19af273b29b5a0dbe65d4404.png,@finn sorry to say but i have overtaken,,,2026/03/07 14:12,,,
+1479965643615768787,whoahyi,https://cdn.discordapp.com/avatars/151884808555986944/61e20fa5f54eaf1b96469858b716d2c4.png,damn,,,2026/03/07 14:15,,,
+1479965653644345495,whoahyi,https://cdn.discordapp.com/avatars/151884808555986944/61e20fa5f54eaf1b96469858b716d2c4.png,happens,,,2026/03/07 14:15,,,
+1479965838462156872,alphanord,https://cdn.discordapp.com/avatars/770303574168043591/null.png,thank you just saw ur msg,,,2026/03/07 14:15,"honestly the amd developer docs havent been bad:
+https://rocm.docs.amd.com/en/latest/how-to/rocm-for-ai/inference-optimization/index.html",2026-03-07T22:02:40.552000+00:00,whoahyi
+1479992084449591376,ritwikdas2602,https://cdn.discordapp.com/avatars/807350839025860649/null.png,"Are the test cases used for ranking the same as the ones mentioned in the ""benchmarks"" section in the ""task.yml""?",,,2026/03/07 16:00,,,
+1479999185590681762,houdiniedo,https://cdn.discordapp.com/avatars/387240983009558530/5a7136695775c5915c45b500c93c9682.png,Do we have to register for the AMD developer program to win prizes?,,,2026/03/07 16:28,,,
+1480005711479177349,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,No,,,2026/03/07 16:54,Do we have to register for the AMD developer program to win prizes?,2026-03-08T00:28:22.900000+00:00,houdiniedo
+1480089532274835576,simon_57893,https://cdn.discordapp.com/avatars/1291326123182919753/6e776d70e05bddf81b507fdf860bff61.png,"Unfortunately Baby, Wife, Flashinfer Competition and Day2Day Job  pretty much occupy me right now 🤣 maybe someone else can take over for this comp 🫡 (looking at @Arseni Ivanov)",,,2026/03/07 22:27,I feel like we need @Simon's help to get folks up to speed 😛,2026-03-07T21:44:39.613000+00:00,marksaroufim
+1480089709492568266,andrewyates,https://cdn.discordapp.com/avatars/1480036724716343300/null.png,hi,,,2026/03/07 22:28,,,
+1480125267660771490,_radna,https://cdn.discordapp.com/avatars/321992238856929280/b60e4fd174ddfd1867b5a11af4ff6c6a.png,Is the rank 0-indexed? 1st = rank 0?,https://cdn.discordapp.com/attachments/1359640791525490768/1480125267166101634/image.png?ex=69c44a53&is=69c2f8d3&hm=eee1c1f681931ed59fd5520f9dd78feb6d3916982755b7ce04fe3a32b7ee8738&,,2026/03/08 00:49,,,
+1480138146200158270,alphanord,https://cdn.discordapp.com/avatars/770303574168043591/null.png,"guys competition is hard, was thinking 1us is hard but theres someone who worked very good",https://cdn.discordapp.com/attachments/1359640791525490768/1480138145889648771/image.png?ex=69c45651&is=69c304d1&hm=120df6e167ab1aa327119a6d49867fdffc5bda92f56c2aeb989893d9c87feb3f&,,2026/03/08 01:40,,,
+1480139897468878958,gau.nernst,https://cdn.discordapp.com/avatars/349565795711451146/58a1dd8fa3331fd918e10b828fadec8c.png,Are all the 4us cheating? 😂,,,2026/03/08 01:47,,,
+1480140123109855393,alphanord,https://cdn.discordapp.com/avatars/770303574168043591/null.png,is it possible to cheat ?,,,2026/03/08 01:48,Are all the 4us cheating? 😂,2026-03-08T09:47:31.226000+00:00,gau.nernst
+1480140190977753280,alphanord,https://cdn.discordapp.com/avatars/770303574168043591/null.png,honest question cuz i dont know abt gpu prog,,,2026/03/08 01:48,,,
+1480141406369480724,_radna,https://cdn.discordapp.com/avatars/321992238856929280/b60e4fd174ddfd1867b5a11af4ff6c6a.png,"Is it an exploit of the benchmark check, and no those are of course invalid",,,2026/03/08 01:53,"guys competition is hard, was thinking 1us is hard but theres someone who worked very good",2026-03-08T09:40:33.691000+00:00,alphanord
+1480141471851085836,_radna,https://cdn.discordapp.com/avatars/321992238856929280/b60e4fd174ddfd1867b5a11af4ff6c6a.png,I found it by accident,,,2026/03/08 01:53,,,
+1480141628999205026,alphanord,https://cdn.discordapp.com/avatars/770303574168043591/null.png,So how can i ensure i provided code which work legit and not just give good results ?,,,2026/03/08 01:54,"Is it an exploit of the benchmark check, and no those are of course invalid",2026-03-08T09:53:30.976000+00:00,_radna
+1480143997472342177,arseniivanov,https://cdn.discordapp.com/avatars/772751219411517461/b2240e25c51a8bb8984cb7cfd396c073.png,"1) you can build it by hand understanding what you do, you should think that the kernel runs in a forward pass with new data, it should not replay itself during benchmarking for example
+2) if using llms, to can learn about the exploits that the LLMs can do to reward-hack, for example from here: https://deep-reinforce.com/defense_kernel_hack.html
+3) Apply common sense to submissions, it's highly unlikely that you will 4x improve aiters performance by some simple code addition, really smart people built those kernels. In general if something looks too good to be true, you should verify so you understand what is going on",,,2026/03/08 03:03,So how can i ensure i provided code which work legit and not just give good results ?,2026-03-08T09:54:24.055000+00:00,alphanord
+1480144426654498952,alphanord,https://cdn.discordapp.com/avatars/770303574168043591/null.png,thank you very much,,,2026/03/08 03:05,,,
+1480158145534890154,alphanord,https://cdn.discordapp.com/avatars/770303574168043591/null.png,"how do you guys copy paste the error from terminal, i chat using online llm chat not agents (i cant use agents for several reasons) because the ui is not good for copy pasting just to read errors",,,2026/03/08 04:00,,,
+1480158671659860170,alphanord,https://cdn.discordapp.com/avatars/770303574168043591/null.png,and how do you fix │                                                                │↑Submission error: Server returned status 500 Internal Server Error: Your code │,,,2026/03/08 04:02,,,
+1480169437834252371,simon_57893,https://cdn.discordapp.com/avatars/1291326123182919753/6e776d70e05bddf81b507fdf860bff61.png,"understand benchmarking logic. 
+understand which optimizations make sense in production.
+disregard optimizations that don't make sense in production.",,,2026/03/08 04:44,So how can i ensure i provided code which work legit and not just give good results ?,2026-03-08T09:54:24.055000+00:00,alphanord
+1480169540242641057,alphanord,https://cdn.discordapp.com/avatars/770303574168043591/null.png,thank you,,,2026/03/08 04:45,,,
+1480169792118980731,alphanord,https://cdn.discordapp.com/avatars/770303574168043591/null.png,"are the benchmark results real because in leaderboard online i see results around 4us while i get for the benchmark around 17/20us which depend to the shape, task is amd-mxfp4-mm",,,2026/03/08 04:46,"understand benchmarking logic. 
+understand which optimizations make sense in production.
+disregard optimizations that don't make sense in production.",2026-03-08T11:44:54.198000+00:00,simon_57893
+1480170154016116901,simon_57893,https://cdn.discordapp.com/avatars/1291326123182919753/6e776d70e05bddf81b507fdf860bff61.png,benchmarks can be hacked. i didn't look at benchmarking logic here but for example if the same tensor is provide multiple times we can cache it and thus avoid reloading it. this is something that of course doesn't make much sense in production because its unlikely one and the same set of tensors will be encountered multiple times in a row,,,2026/03/08 04:47,,,
+1480170404000694322,simon_57893,https://cdn.discordapp.com/avatars/1291326123182919753/6e776d70e05bddf81b507fdf860bff61.png,"so they can be ""real"" in the sense that some script archives this performance. but they could be entirely useless for any real world application",,,2026/03/08 04:48,,,
+1480170528819122176,alphanord,https://cdn.discordapp.com/avatars/770303574168043591/null.png,alright and for this competition selected ppl will be top 10 for production ready or only top 10,,,2026/03/08 04:49,,,
+1480177123283964085,simon_57893,https://cdn.discordapp.com/avatars/1291326123182919753/6e776d70e05bddf81b507fdf860bff61.png,im pretty sure cheating will be of course disregarded at the end because it would not give amd any value but @Mark Saroufim  knows the rules better than me,,,2026/03/08 05:15,,,
+1480189254939185296,_radna,https://cdn.discordapp.com/avatars/321992238856929280/b60e4fd174ddfd1867b5a11af4ff6c6a.png,"I would like my results and others at the top to be invalidated, can any moderators rerun the submission on actual benchmark, or just remove those?",,,2026/03/08 06:03,,,
+1480194518354624532,ooousay,https://cdn.discordapp.com/avatars/348585670329237505/a2bd8ec0273bb549ffa61342bbb2b9d9.png,I spoke to Siro and he said they are working on removing my non compliant submissions.,,,2026/03/08 06:24,"I would like my results and others at the top to be invalidated, can any moderators rerun the submission on actual benchmark, or just remove those?",2026-03-08T13:03:38.964000+00:00,_radna
+1480194961944088686,mohammad_talaei,https://cdn.discordapp.com/avatars/694489409122205707/08a782290a98aa2c2d1aeb367e57e7ad.png,"Hi everyone, I’m new to the competition! I’m curious about the best workflow for experimentation. Do most people use the submission process itself to profile and test, or is there a preferred way to run experiments locally/in-notebook before submission?
+Also, are there specific GPU resources or dev-nodes provided for testing/profiling, or should we rely on our own hardware/notebook quotas for the 'pre-submission' phase?",,,2026/03/08 06:26,,,
+1480195026998001938,alphanord,https://cdn.discordapp.com/avatars/770303574168043591/null.png,"atleast you know already your not compliant, i am vibe coding while giving him ressources to not cheat but i will never know if he(ai) cheated without intention 🥲",,,2026/03/08 06:26,,,
+1480195516384935987,alphanord,https://cdn.discordapp.com/avatars/770303574168043591/null.png,"u use popcorn cli allowing you to benchmark without submitting, if you can run locally then its fine, im in laptop, and i cant rent my own gpu so i write code then send it through popcorn, and it give u choice if testing errors / benchmarkin / submitting to leaderboard",,,2026/03/08 06:28,"Hi everyone, I’m new to the competition! I’m curious about the best workflow for experimentation. Do most people use the submission process itself to profile and test, or is there a preferred way to run experiments locally/in-notebook before submission?
+Also, are there specific GPU resources or dev-nodes provided for testing/profiling, or should we rely on our own hardware/notebook quotas for the 'pre-submission' phase?",2026-03-08T13:26:19.620000+00:00,mohammad_talaei
+1480202312768290907,danielhuang_12953,https://cdn.discordapp.com/avatars/1354693822055055441/7ce6623822e6444ea5118e637d85935d.png,"to be note again, any cheating will be obviously found, better focus to develop kernels instead, especially this is just elimination round. We hope everyone won't be disturbed your minds especially those who are focused",,,2026/03/08 06:55,,,
+1480215075909537832,artemisrsch,https://cdn.discordapp.com/avatars/1248199055415443490/23ebe017b757bc851b7836e68fdb5eac.png,"My guess is that no one is cheating intentionally  ( esp. people with ultra low scores which every one knows at a glance are not real )
+
+Chatgpt 5.4 is ridiculous in this regards, he will go for lowest score no matter what. Thus people with agentic setup got these solutions submitted",,,2026/03/08 07:46,,,
+1480256432531177573,brian_s_,https://cdn.discordapp.com/avatars/370001813044461580/55048b555eb4bd39c3f65d6099f2cbe5.png,are there any tools / libraries we aren't allowed to use or anything?,,,2026/03/08 10:30,,,
+1480256788241584178,brian_s_,https://cdn.discordapp.com/avatars/370001813044461580/55048b555eb4bd39c3f65d6099f2cbe5.png,"im just wondering if there's an expectation that we write things ""from scratch""  (like is using the equivalent of CUTLASS/cute allowed to any extent)",,,2026/03/08 10:32,,,
+1480258802489098402,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,Regarding cheating the AIs are indeed very good at it. There’s fundamental reasons why it’s hard to fix this problem on our end but we’re working on it. In the meantime if you show a submission to another AI and just ask is this cheating? It’s usually pretty good at confirming. For instance if your code is money patching the eval harness then you yknow its probably cheating,,,2026/03/08 10:40,,,
+1480258896877584534,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,Regardless I suspect the leaderboard will be chaotic for a few days so please ignore the rankings and study how AMD hardware works,,,2026/03/08 10:40,,,
+1480260135631847676,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,We do kind of expect you to skim the kernel you’re submitting. Claude did it is a frustrating excuse if a mod has to delete your submission every few min,,,2026/03/08 10:45,,,
+1480265897255108733,thereal.preetam,https://cdn.discordapp.com/avatars/571417953715879936/a18cf2edbb3f4c39e0d6d5ede45722ba.png,"@Mark Saroufim : Just wanted to report that minimal ""return 0"" submissions are timing out for amd-mixed-mla and amd-moe-mxfp4, indicating a potential harness issue. Any advice/pointers would be very appreciated.",,,2026/03/08 11:08,,,
+1480266539557978253,signeddistancefunction,https://cdn.discordapp.com/avatars/507727025054810130/9a0cbd03b945b1b7ff4cf6f55884d417.png,"Possibly stupid question but is:
+```python
+    A, B, B_q, B_shuffle, B_scale_sh = data
+    A = A.contiguous()
+    B = B.contiguous()
+    m, k = A.shape
+    n, _ = B.shape
+```",,,2026/03/08 11:10,,,
+1480266650744782971,signeddistancefunction,https://cdn.discordapp.com/avatars/507727025054810130/9a0cbd03b945b1b7ff4cf6f55884d417.png,Included in the timing?,,,2026/03/08 11:11,,,
+1480268225970311269,thereal.preetam,https://cdn.discordapp.com/avatars/571417953715879936/a18cf2edbb3f4c39e0d6d5ede45722ba.png,"The Issue:  
+Submissions for amd‑mixed‑mla and amd‑moe‑mxfp4 are timing out (Execution > 120 s) regardless of implementation complexity.  
+Evidence of Harness Issue:  
+1. Control: My submissions for amd‑mxfp4‑mm are running successfully and passing tests (e.g., Submission ID: #517732), so my environment/CLI seems to be correctly configured.  
+2. Test case: I submitted a minimal script that simply initializes and returns zeros/empty tensors. This script should run instantly, but it still times out.  
+Failed Submission IDs:  
+* MLA (Minimal/No‑Op): #518918, #518904  
+* MoE (Minimal/No‑Op): #517768, #517750  
+Minimal Reproduction Code Used:  
+# MLA minimal (submission_mla_minimal.py)
+import torch
+from typing import Tuple, Dict
+input_t = Tuple[torch.Tensor, Dict, torch.Tensor, torch.Tensor, Dict]
+output_t = torch.Tensor
+def custom_kernel(data: input_t) -> output_t:
+    q, kv_data, qo_indptr, kv_indptr, config = data
+    total_q = q.shape[0]
+    num_heads = config[""num_heads""]
+    v_head_dim = config[""v_head_dim""]
+    return torch.zeros((total_q, num_heads, v_head_dim), dtype=torch.bfloat16, device=""cuda"")
+# MoE minimal (equivalent zero‑output skeleton)
+import torch
+from typing import Dict, Tuple
+input_t = Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor,
+                torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor,
+                torch.Tensor, torch.Tensor, Dict]
+output_t = torch.Tensor
+def custom_kernel(data: input_t) -> output_t:
+    hidden_states, *_, config = data
+    M, d_hidden = hidden_states.shape
+    return torch.zeros((M, d_hidden), dtype=torch.bfloat16, device=hidden_states.device)
+Could you confirm if the test harness for these two problems includes a heavy data‑generation step or stricter timeout that might be causing this bottleneck before the kernel even launches?  
+Thanks!",,,2026/03/08 11:17,"@Mark Saroufim : Just wanted to report that minimal ""return 0"" submissions are timing out for amd-mixed-mla and amd-moe-mxfp4, indicating a potential harness issue. Any advice/pointers would be very appreciated.",2026-03-08T18:08:11.916000+00:00,thereal.preetam
+1480273830868943100,theo3579,https://cdn.discordapp.com/avatars/482975178482253844/26b7cd3c19af273b29b5a0dbe65d4404.png,aiter takes like 5 minutes to compile on the runners,,,2026/03/08 11:39,,,
+1480273870014386260,theo3579,https://cdn.discordapp.com/avatars/482975178482253844/26b7cd3c19af273b29b5a0dbe65d4404.png,the references are currently aiter,,,2026/03/08 11:39,,,
+1480273938478006415,theo3579,https://cdn.discordapp.com/avatars/482975178482253844/26b7cd3c19af273b29b5a0dbe65d4404.png,but they are being converted to pure pytorch to solve this problem,,,2026/03/08 11:40,,,
+1480275787868278878,thereal.preetam,https://cdn.discordapp.com/avatars/571417953715879936/a18cf2edbb3f4c39e0d6d5ede45722ba.png,THANK YOU!,,,2026/03/08 11:47,the references are currently aiter,2026-03-08T18:39:52.770000+00:00,theo3579
+1480278591324553268,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,are you submitting to benchmark or leaderboard?,,,2026/03/08 11:58,"The Issue:  
+Submissions for amd‑mixed‑mla and amd‑moe‑mxfp4 are timing out (Execution > 120 s) regardless of implementation complexity.  
+Evidence of Harness Issue:  
+1. Control: My submissions for amd‑mxfp4‑mm are running successfully and passing tests (e.g., Submission ID: #517732), so my environment/CLI seems to be correctly configured.  
+2. Test case: I submitted a minimal script that simply initializes and returns zeros/empty tensors. This script should run instantly, but it still times out.  
+Failed Submission IDs:  
+* MLA (Minimal/No‑Op): #518918, #518904  
+* MoE (Minimal/No‑Op): #517768, #517750  
+Minimal Reproduction Code Used:  
+# MLA minimal (submission_mla_minimal.py)
+import torch
+from typing import Tuple, Dict
+input_t = Tuple[torch.Tensor, Dict, torch.Tensor, torch.Tensor, Dict]
+output_t = torch.Tensor
+def custom_kernel(data: input_t) -> output_t:
+    q, kv_data, qo_indptr, kv_indptr, config = data
+    total_q = q.shape[0]
+    num_heads = config[""num_heads""]
+    v_head_dim = config[""v_head_dim""]
+    return torch.zeros((total_q, num_heads, v_head_dim), dtype=torch.bfloat16, device=""cuda"")
+# MoE minimal (equivalent zero‑output skeleton)
+import torch
+from typing import Dict, Tuple
+input_t = Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor,
+                torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor,
+                torch.Tensor, torch.Tensor, Dict]
+output_t = torch.Tensor
+def custom_kernel(data: input_t) -> output_t:
+    hidden_states, *_, config = data
+    M, d_hidden = hidden_states.shape
+    return torch.zeros((M, d_hidden), dtype=torch.bfloat16, device=hidden_states.device)
+Could you confirm if the test harness for these two problems includes a heavy data‑generation step or stricter timeout that might be causing this bottleneck before the kernel even launches?  
+Thanks!",2026-03-08T18:17:27.125000+00:00,thereal.preetam
+1480279942725107974,matrixbot0_0,https://cdn.discordapp.com/avatars/701007263703498753/168c5ff28e8b5ff57028e58c40d39ac3.png,"I have a question does profile flag in popcorn-cli works for this competition ?Because I tried that and it failed with message `Raw Error: Workflow 22827423342 cancelled - exceeded 12 minute timeout` .
+What I am trying to profile it just default impl already present in `aiter`  (I know this might be dumb idea but I just wanted to try understand timing profile to get an idea)",,,2026/03/08 12:04,,,
+1480288338895310930,theo3579,https://cdn.discordapp.com/avatars/482975178482253844/26b7cd3c19af273b29b5a0dbe65d4404.png,see here,,,2026/03/08 12:37,"idk if this is helpful for anyone, but i modified reference.py to be a submittable custom kernel. the aiter reference is sitting at about 200. needed this info since im rewriting it in pure torch now",2026-03-07T18:53:03.632000+00:00,theo3579
+1480288451940323368,theo3579,https://cdn.discordapp.com/avatars/482975178482253844/26b7cd3c19af273b29b5a0dbe65d4404.png,^ if you're curious how the baseline benchmarks,,,2026/03/08 12:37,"I have a question does profile flag in popcorn-cli works for this competition ?Because I tried that and it failed with message `Raw Error: Workflow 22827423342 cancelled - exceeded 12 minute timeout` .
+What I am trying to profile it just default impl already present in `aiter`  (I know this might be dumb idea but I just wanted to try understand timing profile to get an idea)",2026-03-08T19:04:00.617000+00:00,matrixbot0_0
+1480297396440268992,matrixbot0_0,https://cdn.discordapp.com/avatars/701007263703498753/168c5ff28e8b5ff57028e58c40d39ac3.png,I feel that's  wrong because if you just submit the default problem statement code you 15 micro seconds,,,2026/03/08 13:13,,,
+1480297468674576486,matrixbot0_0,https://cdn.discordapp.com/avatars/701007263703498753/168c5ff28e8b5ff57028e58c40d39ac3.png,That's what I got without doing anything,,,2026/03/08 13:13,,,
+1480297679614509066,matrixbot0_0,https://cdn.discordapp.com/avatars/701007263703498753/168c5ff28e8b5ff57028e58c40d39ac3.png,@Theo,,,2026/03/08 13:14,,,
+1480299740934705216,theo3579,https://cdn.discordapp.com/avatars/482975178482253844/26b7cd3c19af273b29b5a0dbe65d4404.png,Definitely a bug in ur code,,,2026/03/08 13:22,,,
+1480299783368474724,theo3579,https://cdn.discordapp.com/avatars/482975178482253844/26b7cd3c19af273b29b5a0dbe65d4404.png,Or which problem are you doing,,,2026/03/08 13:22,,,
+1480299831049195520,theo3579,https://cdn.discordapp.com/avatars/482975178482253844/26b7cd3c19af273b29b5a0dbe65d4404.png,I got 200 micros for mixed mla,,,2026/03/08 13:23,,,
+1480300905529212968,matrixbot0_0,https://cdn.discordapp.com/avatars/701007263703498753/168c5ff28e8b5ff57028e58c40d39ac3.png,I am doing MXFP4 GEMM,,,2026/03/08 13:27,,,
+1480302081804992532,alphanord,https://cdn.discordapp.com/avatars/770303574168043591/null.png,"Hello guys, where could we find more about the version / libs / things installed in the server we do benchmark becasue even if i can run benchmark and get results, i get warning/errors from aiter and hipmodule",,,2026/03/08 13:31,,,
+1480310776291000514,theo3579,https://cdn.discordapp.com/avatars/482975178482253844/26b7cd3c19af273b29b5a0dbe65d4404.png,ye then 15 micros seems right,,,2026/03/08 14:06,I am doing MXFP4 GEMM,2026-03-08T20:27:18.539000+00:00,matrixbot0_0
+1480310843500662997,theo3579,https://cdn.discordapp.com/avatars/482975178482253844/26b7cd3c19af273b29b5a0dbe65d4404.png,not a bug in ur code,,,2026/03/08 14:06,,,
+1480313988834394173,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,https://github.com/gpu-mode/kernelbot/blob/main/docker/amd-docker.Dockerfile,,"Title: kernelbot/docker/amd-docker.Dockerfile at main · gpu-mode/kernelbot
+Description: Write a fast kernel and see how you compare against the best humans and AI on gpumode.com - gpu-mode/kernelbot",2026/03/08 14:19,"Hello guys, where could we find more about the version / libs / things installed in the server we do benchmark becasue even if i can run benchmark and get results, i get warning/errors from aiter and hipmodule",2026-03-08T20:31:58.985000+00:00,alphanord
+1480314106480427018,alphanord,https://cdn.discordapp.com/avatars/770303574168043591/null.png,thank you very much,,,2026/03/08 14:19,,,
+1480317353244758088,synced1714,https://cdn.discordapp.com/avatars/825913175744184361/6d9e97da3822e9fa3d4cd9fb0065f084.png,"@Mark Saroufim how come no mi355 on amd devcloud https://devcloud.amd.com/? where do ppl find on demand mi355, or do we just optimize the kernels blindly",,,2026/03/08 14:32,,,
+1480367708129329304,somethingobscurefordevstuff,https://cdn.discordapp.com/avatars/354591687047381002/3adf423526f15ffa2ff3e1115b669587.png,"Fam, what am I missing? If I go to popcorn-cli I only see the following competitions:
+1. pmpp_v2 Practice Problems
+2. NVIDIA Blackwell NVFP4 Kernel Hackathon
+3. AMD Developer Challenge 2025
+4. AMD Developer Challenge 2025 - Distributed Edition
+5. BioML Kernels (no cash prizes)",,,2026/03/08 17:52,,,
+1480368445638971594,ritwikdas2602,https://cdn.discordapp.com/avatars/807350839025860649/null.png,"What is the meaning of this error:
+
+Submission error: Server returned status 500 Internal Server Error: Your code contains work on another stream. This is not allowed and may result in your disqualification. If you think this is a mistake, please contact us.",,,2026/03/08 17:55,,,
+1480368697150406718,gau.nernst,https://cdn.discordapp.com/avatars/349565795711451146/58a1dd8fa3331fd918e10b828fadec8c.png,"u can add this to the top of your submission file
+```
+#!POPCORN leaderboard amd-mxfp4-mm
+#!POPCORN gpu MI355X
+```",,,2026/03/08 17:56,"Fam, what am I missing? If I go to popcorn-cli I only see the following competitions:
+1. pmpp_v2 Practice Problems
+2. NVIDIA Blackwell NVFP4 Kernel Hackathon
+3. AMD Developer Challenge 2025
+4. AMD Developer Challenge 2025 - Distributed Edition
+5. BioML Kernels (no cash prizes)",2026-03-09T00:52:45.520000+00:00,somethingobscurefordevstuff
+1480385640683012228,danielhuang_12953,https://cdn.discordapp.com/avatars/1354693822055055441/7ce6623822e6444ea5118e637d85935d.png,https://github.com/gpu-mode/reference-kernels/tree/main/problems/amd_202602,,,2026/03/08 19:04,"Fam, what am I missing? If I go to popcorn-cli I only see the following competitions:
+1. pmpp_v2 Practice Problems
+2. NVIDIA Blackwell NVFP4 Kernel Hackathon
+3. AMD Developer Challenge 2025
+4. AMD Developer Challenge 2025 - Distributed Edition
+5. BioML Kernels (no cash prizes)",2026-03-09T00:52:45.520000+00:00,somethingobscurefordevstuff
+1480428632538091613,hargup,https://cdn.discordapp.com/avatars/817320374064250912/00508eb0c31f4b9df639be05fb22a0f2.png,And probably cap/rate limit the number of submissions per user.,,,2026/03/08 21:54,"we should actually vibecode a queue viewer so you can use it, as of now the runs can be seen here https://github.com/gpu-mode/kernelbot/actions - we have 40 runners to use",2026-03-07T19:00:51.137000+00:00,s1r_o
+1480429706829631631,thereal.preetam,https://cdn.discordapp.com/avatars/571417953715879936/a18cf2edbb3f4c39e0d6d5ede45722ba.png,I was submitting to benchmark mode. I checked the logs and the timeout is actually secondary to a GPU crash. The stderr shows rocdevice.cpp :3580: Callback: Queue 0x... aborting. My kernel is causing a queue abort (likely a memory violation/segfault) which hangs the host until the 420s timeout. I'll review my memory masks and strides!,,,2026/03/08 21:59,are you submitting to benchmark or leaderboard?,2026-03-08T18:58:38.418000+00:00,marksaroufim
+1480439949684899943,ritwikdas2602,https://cdn.discordapp.com/avatars/807350839025860649/null.png,"Is HIP python available on the test machines? I tried `from hip import hip, hiprtc` and I got:
+
+No module named 'hip'",,,2026/03/08 22:39,,,
+1480443173779275888,danielhuang_12953,https://cdn.discordapp.com/avatars/1354693822055055441/7ce6623822e6444ea5118e637d85935d.png,"I am not sure what happened, but other submissions about mla and moe work...",,,2026/03/08 22:52,I was submitting to benchmark mode. I checked the logs and the timeout is actually secondary to a GPU crash. The stderr shows rocdevice.cpp :3580: Callback: Queue 0x... aborting. My kernel is causing a queue abort (likely a memory violation/segfault) which hangs the host until the 420s timeout. I'll review my memory masks and strides!,2026-03-09T04:59:07.162000+00:00,thereal.preetam
+1480443234923839674,danielhuang_12953,https://cdn.discordapp.com/avatars/1354693822055055441/7ce6623822e6444ea5118e637d85935d.png,not yet,,,2026/03/08 22:52,"Is HIP python available on the test machines? I tried `from hip import hip, hiprtc` and I got:
+
+No module named 'hip'",2026-03-09T05:39:49.249000+00:00,ritwikdas2602
+1480461466543980616,thereal.preetam,https://cdn.discordapp.com/avatars/571417953715879936/a18cf2edbb3f4c39e0d6d5ede45722ba.png,"Thanks, @daniel huang ..looks like it was me. 
+What I was doing wrong:
+Inside my custom_kernel, I was calling .contiguous() and .view(torch.uint8) on the input tensors to prep them for Triton. Because Python passes tensors by reference, this mutated the underlying memory strides and C++ metadata.
+When the eval.py harness subsequently passed those same mutated tensors into the aiter reference kernel to check for mathematical correctness, Aiter couldn't handle the new strides/dtypes and triggered a fatal ROCm hardware fault (rocdevice.cpp :3580: Callback: Queue aborting). Because the GPU queue died, the host eval.py just hung on synchronization until the hard 420s CI timeout killed the job.",,,2026/03/09 00:05,"I am not sure what happened, but other submissions about mla and moe work...",2026-03-09T05:52:37.933000+00:00,danielhuang_12953
+1480465940599537686,danielhuang_12953,https://cdn.discordapp.com/avatars/1354693822055055441/7ce6623822e6444ea5118e637d85935d.png,make sense!,,,2026/03/09 00:23,,,
+1480494911252856936,lynn4400,https://cdn.discordapp.com/avatars/272374415453454337/4b59d6e44f3d715f160ec93c58b120f5.png,does anyone have the ref for moe and mla formated in pyre pytorch to use ? i cant get one working :pp,,,2026/03/09 02:18,,,
+1480496161839386696,danielhuang_12953,https://cdn.discordapp.com/avatars/1354693822055055441/7ce6623822e6444ea5118e637d85935d.png,"https://github.com/gpu-mode/reference-kernels/pull/114  gemm
+https://github.com/gpu-mode/reference-kernels/pull/113  mla
+there are folks(thanks to them) in this channel implemented gemm and mla by torch, just for your reference, we haven't decided merge though",,,2026/03/09 02:23,,,
+1480506651852275712,lynn4400,https://cdn.discordapp.com/avatars/272374415453454337/4b59d6e44f3d715f160ec93c58b120f5.png,coool ! :D,,,2026/03/09 03:04,,,
+1480604257823494144,matrixbot0_0,https://cdn.discordapp.com/avatars/701007263703498753/168c5ff28e8b5ff57028e58c40d39ac3.png,"Hey @daniel huang, is the first ranked in the leaderboard correct? or will that be manually removed in GEMM leaderboard",,,2026/03/09 09:32,,,
+1480620653450363052,s1r_o,https://cdn.discordapp.com/avatars/489144435032981515/7d6910fe0d4c25d80eb92ae36da90163.png,I'll test this out today and hopefully merge to get the startups faster 🙏,,,2026/03/09 10:37,"https://github.com/gpu-mode/reference-kernels/pull/114  gemm
+https://github.com/gpu-mode/reference-kernels/pull/113  mla
+there are folks(thanks to them) in this channel implemented gemm and mla by torch, just for your reference, we haven't decided merge though",2026-03-09T09:23:11.271000+00:00,danielhuang_12953
+1480634134631022684,s1r_o,https://cdn.discordapp.com/avatars/489144435032981515/7d6910fe0d4c25d80eb92ae36da90163.png,"I have cleaned up the leaderboard of cheating entries (atleast I hope most of them). I will keep doing this periodically so don't worry if some appear. Also please take a look at your agents, a lot of people I warned about their entries kept submitting them even after that, which is frankly quite annoying 🙏",,,2026/03/09 11:31,,,
+1480652104434454539,maxwell826,https://cdn.discordapp.com/avatars/1249793514913403041/bf051cd8a7b2c5981d75bef6a09f23b5.png,"Hi guys, using LLMs allowed or considered cheating?",,,2026/03/09 12:42,,,
+1480654133470957679,alphanord,https://cdn.discordapp.com/avatars/770303574168043591/null.png,allowed,,,2026/03/09 12:50,"Hi guys, using LLMs allowed or considered cheating?",2026-03-09T19:42:50.883000+00:00,maxwell826
+1480655332417208423,s1r_o,https://cdn.discordapp.com/avatars/489144435032981515/7d6910fe0d4c25d80eb92ae36da90163.png,"There has been a bunch of issues with popcorn-cli surfacing, please make sure you updated to the latest version as there has been some breaking changes",,,2026/03/09 12:55,,,
+1480656145269129308,alphanord,https://cdn.discordapp.com/avatars/770303574168043591/null.png,"make sure when prompting that your llm isnt ""cheating"", u can provide this ressource telling him to provide legit code : https://deep-reinforce.com/defense_kernel_hack.html",,,2026/03/09 12:58,"Hi guys, using LLMs allowed or considered cheating?",2026-03-09T19:42:50.883000+00:00,maxwell826
+1480656437121388715,maxwell826,https://cdn.discordapp.com/avatars/1249793514913403041/bf051cd8a7b2c5981d75bef6a09f23b5.png,thx,,,2026/03/09 13:00,,,
+1480676986643943446,signeddistancefunction,https://cdn.discordapp.com/avatars/507727025054810130/9a0cbd03b945b1b7ff4cf6f55884d417.png,another refusal 😔,https://cdn.discordapp.com/attachments/1359640791525490768/1480676986082033765/image.png?ex=69c451e7&is=69c30067&hm=ebd02b918d34b71442e6afdafbf8d378fd9a073d183cc75256b7d178ab7516df&,,2026/03/09 14:21,Wait nvm they did respond rip,2026-03-07T19:05:28.133000+00:00,signeddistancefunction
+1480798915073675296,daniel10015,https://cdn.discordapp.com/avatars/350730407060176897/34350f6f651346ea8f6ecebd584879d9.png,Is there a way to re-register from individual to a team?,,,2026/03/09 22:26,,,
+1480803053815992421,gau.nernst,https://cdn.discordapp.com/avatars/349565795711451146/58a1dd8fa3331fd918e10b828fadec8c.png,is there a way to find out the compiler intrinsic of an instruction in [CNDA4 ISA doc](https://www.amd.com/content/dam/amd/en/documents/instinct-tech-docs/instruction-set-architectures/amd-instinct-cdna4-instruction-set-architecture.pdf) ?,,,2026/03/09 22:42,,,
+1480816530940887054,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,is there a way to find out the compiler,,,2026/03/09 23:36,,,
+1480816919966650442,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,Is there a way to re-register from,,,2026/03/09 23:37,,,
+1480879922284199946,lynn4400,https://cdn.discordapp.com/avatars/272374415453454337/4b59d6e44f3d715f160ec93c58b120f5.png,the files from the profiler are not downloaded lol?:) also is there rocprof comptue for it ?,,,2026/03/10 03:48,,,
+1480899939671216261,darkasura_36610,https://cdn.discordapp.com/avatars/1282330668134830154/null.png,"ok, just had a question? How to register as a team?",,,2026/03/10 05:07,,,
+1480900166859882627,darkasura_36610,https://cdn.discordapp.com/avatars/1282330668134830154/null.png,"so I registered mine, and the form was asking a team name, so I filled that, so if my friend wants to team up with me, does he also have to register, and if so, he needs to put the same team name to get registered with me?",,,2026/03/10 05:08,,,
+1480900261718261851,darkasura_36610,https://cdn.discordapp.com/avatars/1282330668134830154/null.png,"How do I confirm that we aer registered as a team, if so?",,,2026/03/10 05:08,,,
+1480920377835393035,vyomakesh,https://cdn.discordapp.com/avatars/573560935487111169/2433a518aef69a845e178597f6edca86.png,"hey could you tell us what was the loophole that got unstable perf, will include that in our pipeline so that our agents won't commit those",,,2026/03/10 06:28,"I have cleaned up the leaderboard of cheating entries (atleast I hope most of them). I will keep doing this periodically so don't worry if some appear. Also please take a look at your agents, a lot of people I warned about their entries kept submitting them even after that, which is frankly quite annoying 🙏",2026-03-09T18:31:26.548000+00:00,s1r_o
+1480956454566367425,lusak1,https://cdn.discordapp.com/avatars/573402688318996481/19df61a1bba1976b5ecbd7b12dca176f.png,we have to add billing to our amd.digitalocean to create a gpu droplet even though we have 100$ credits?,,,2026/03/10 08:52,,,
+1480973179697758400,ritvik6555,https://cdn.discordapp.com/avatars/461444232394178580/dc23a285b94d55b44b4275ec01ffd60f.png,"i got the same doubt, cuz me and my team registered under the same team name on luma. but the GPU Mode Leaderboard window doesn't show any option for teams specifically. How do i ensure we are making submissions as a team there?",,,2026/03/10 09:58,"ok, just had a question? How to register as a team?",2026-03-10T12:07:39.408000+00:00,darkasura_36610
+1480976746722492638,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,"as long as a a team member of that team is submitting it should be fine, it's what we did last time",,,2026/03/10 10:12,"i got the same doubt, cuz me and my team registered under the same team name on luma. but the GPU Mode Leaderboard window doesn't show any option for teams specifically. How do i ensure we are making submissions as a team there?",2026-03-10T16:58:41.191000+00:00,ritvik6555
+1481023791764340743,gripingberry,https://cdn.discordapp.com/avatars/294132885127168011/2cc554e9b2450785c05a177a5b099aa8.png,"Are we not allowed to have the string ""stream"" anywhere in the submission?",,,2026/03/10 13:19,,,
+1481024323409018971,marksaroufim,https://cdn.discordapp.com/avatars/325883680419610631/e8c7897262bec5319d2bc8ebf5eecf4c.png,"nope, unfortunately it's a favorite trick of AI models",,,2026/03/10 13:21,"Are we not allowed to have the string ""stream"" anywhere in the submission?",2026-03-10T20:19:48.048000+00:00,gripingberry
+1481035776434114642,guruprasadmp_41917,https://cdn.discordapp.com/avatars/1160995582916165794/null.png,"Yes, please have your team mates register and use the same team name.",,,2026/03/10 14:07,"How do I confirm that we aer registered as a team, if so?",2026-03-10T12:08:56.190000+00:00,darkasura_36610
+1481036060539748352,gripingberry,https://cdn.discordapp.com/avatars/294132885127168011/2cc554e9b2450785c05a177a5b099aa8.png,Is there any way to see stdout/logs when we get a timeout?,,,2026/03/10 14:08,,,
