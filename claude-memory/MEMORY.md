@@ -1,0 +1,18 @@
+- [User Profile](user_profile.md) — GPU MODE hackathon competitor, noobmaster69_og, kernel optimization
+- [Project Status](project_status.md) — 3 problems (GEMM/MoE/MLA), deadline Apr 7 2026, current standings
+- [Submission Workflow](reference_submission.md) — popcorn-cli v1.3.6, --no-tui, rate limits, eval details
+- [Feedback: Autonomous Mode](feedback_autonomous.md) — Fully autonomous 24/7 hands-off research workflow
+- [Feedback: Nonstop Mode](feedback_nonstop.md) — Never stop, auto everything, no sessions
+- [Feedback: Strategy](feedback_strategy.md) — Maximum parallel effort, write new code, don't tune wrappers
+- [GEMM Custom Kernel](gemm_custom_kernel.md) — Custom Triton tl.dot_scaled works but doesn't improve leaderboard
+- [Active Leads](active_leads.md) — Automated config sweep for GEMM, pg2 retries for MLA
+- [Session 14 Results](session14_results.md) — Mar 28: NO improvement despite 20+ submissions. Key learnings.
+- [Session 13 Results](session13_results.md) — Mar 28: GEMM 1.56x faster on K=512, split-K passed
+- [Session 12 Results](session12_results.md) — Mar 27 late: custom GEMM validated, MLA leaderboard
+- [Session 11 Results](session11_results.md) — Mar 27 evening: source probes, pg2_fix research
+- [Session 10 Results](session10_results.md) — Mar 27 PM: all 3 stalled, strategic pivot
+- [Session 9 Results](session9_results.md) — Mar 27: MLA 5% improvement, GEMM ASM probe
+- [GEMM Findings](gemm_findings.md) — ASM kernels probed, deepgemm API, Triton still fastest
+- [MLA Findings](mla_findings.md) — num_kv_splits sweep, pg2 analysis, optimal config per shape
+- [MoE Findings](moe_findings.md) — d=2048 injection fails, CSV override fails, opus_sort still best
+- [Dead Ends Comprehensive](dead_ends.md) — All approaches tried and failed across all 3 problems
