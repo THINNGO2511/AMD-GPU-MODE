@@ -8,7 +8,7 @@ With 3 problems rotating: 1 submission every ~2.5 min.
 import os, sys, time, subprocess, random, json, shutil
 from datetime import datetime
 
-REPO = os.path.expanduser("~/Downloads/code/AMD-GPU-MODE")
+REPO = os.path.expanduser("~/Downloads/Code/gpu mode/AMD-GPU-MODE")
 LOG_DIR = os.path.join(REPO, "sweep_logs")
 os.makedirs(LOG_DIR, exist_ok=True)
 
@@ -83,7 +83,8 @@ from aiter import ActivationType, QuantType
                         env += "os.environ['AITER_USE_OPUS_MOE_SORTING']='1'\n"
                     patches = "fm.use_nt = lambda t,k,e: False\n" if nt else ""
                     patches += bm_code + "\n" if bm_code else ""
-                    code = env + imports + patches + base_call
+                    header = "#!POPCORN leaderboard amd-moe-mxfp4\n#!POPCORN gpu MI355X\nfrom task import input_t, output_t\n"
+                    code = header + env + imports + patches + base_call
                     fp = write_submission(f"moe-mxfp4/sweep_{name}.py", code)
                     variants.append(("amd-moe-mxfp4", name, fp, "test"))
     return variants
@@ -121,7 +122,8 @@ def _unshuffle(B_scale_sh, N, K):
     # Vary the K threshold for switching from a16wfp4 to afp4wfp4
     for k_thresh in [512, 1024, 2048, 7168]:  # 7168 = a16wfp4 for ALL
         name = f"kthresh_{k_thresh}"
-        code = base_imports + unshuffle + f'''
+        header = '#!POPCORN leaderboard amd-mxfp4-mm\n#!POPCORN gpu MI355X\n'
+        code = header + base_imports + unshuffle + f'''
 def custom_kernel(data: input_t) -> output_t:
     A, B, B_q, B_shuffle, B_scale_sh = data
     M, K = A.shape; N = B_q.shape[0]

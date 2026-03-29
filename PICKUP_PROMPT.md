@@ -1,157 +1,118 @@
-# Pickup Prompt — NEVER STOP MODE
+# Pickup Prompt — Continuous Autonomous Mode
 
-Continue autonomous GPU kernel optimization for AMD x GPU MODE hackathon. I'm noobmaster69_og. Deadline April 7, 2026. This is a continuation of ongoing non-stop work — NOT a new session. Pick up exactly where we left off.
+Continue GPU kernel optimization for AMD x GPU MODE hackathon. I'm noobmaster69_og. Deadline April 7, 2026.
 
-**MODE: NEVER STOP. Fully autonomous. Don't ask permission. Auto-submit, auto-research, auto-iterate, auto-sweep configs. Only stop when top 10 on ALL 3 leaderboards or I tell you to stop. NO sessions — this is continuous work.**
+## WORKFLOW (follow this order)
 
-## Read These Files First
-- `memory/active_leads.md` — current priorities and what to do next
-- `memory/dead_ends.md` — what NOT to try (saves you hours)
-- `memory/MEMORY.md` — index of all knowledge from 14+ rounds of work
-- `KNOWLEDGE.md`, `CLAUDE.md` — technical reference
-- Check `/tmp/auto_submit_v5_log.txt` — auto-submit v5 loop may still be running
-- Check `ps aux | grep auto_submit` for running loops
-- Check `auto_research_logs/` for sweep results
+**Step 1 — Orient (before ANY execution):**
+1. Read all memory files: `memory/MEMORY.md`, `memory/session15_findings.md`, `memory/project_status.md`, `memory/dead_ends.md`
+2. Read `KNOWLEDGE.md` and `CLAUDE.md` for technical reference
+3. **CRITICAL: Probe runner for aiter version** — submit a probe to check if aiter was updated (daniel huang mentioned "maintenance work" on Mar 29). If git log shows commits past #2156, EVERYTHING changes.
+4. Check what's running: `ps aux | grep -E "auto_submit|autosweep|autoresearch"`
+5. Check latest logs: `tail -30 /tmp/auto_submit_v5_log.txt`, check `auto_research_logs/`
+6. Give a **status report**: what's running, current standings, what we know
 
-## Current Standings (as of Mar 28 2026)
-- **GEMM**: 16.222μs rank 151 → need 8.4μs (top 10). **2x gap.**
-- **MLA**: 42.488μs rank 11 → need 41.8μs (top 10). **0.7μs gap.**
-- **MoE**: 169.131μs rank ~52 → need 136μs (top 10). **20% gap.**
-- popcorn-cli at ~/.local/bin/popcorn-cli, --no-tui flag
-- Rate: 6 submissions/hr, 1 leaderboard/hr per problem
-- Header MUST be `#!POPCORN leaderboard <name>` (NOT benchmark!)
+**Step 2 — If runner WAS updated (commits past #2156):**
+This is the highest priority path. Immediately:
+- Test PR #2261 GEMM configs (waves_per_eu=6-8, BK=1024, KSPLIT=16 for K=7168)
+- Test PR #2440 MLA qseqlen fold (dispatch to qseqlen4 kernel)
+- Test PR #2497 FlyDSL MoE (auto-selected for FP4+FP4)
+- Submit best of each to leaderboard
 
-## Auto-Submit Loop (v5)
-Auto-submit v5 may still be running (`/tmp/auto_submit_v5.sh`). Submits hourly:
-- GEMM: `submission_stages3_all.py` (num_stages=3 + KSPLIT=16 for K=7168)
-- MLA: `submission_pg2_pingpong.py` (pg2 + Triton BLOCK_PINGPONG env var)
-- MoE: `submission_envvars_moe.py` (Triton env vars)
-If not running, restart: `nohup /tmp/auto_submit_v5.sh > /tmp/auto_submit_v5_log.txt 2>&1 &`
+**Step 3 — If runner NOT updated (same old #2156):**
+Continue grinding with available tools:
+- Restart auto-submit loop (MLA pg2 rotation, GEMM/MoE best)
+- Restart GEMM batch sweeper (autosweep_gemm_batch.py, 3 configs/batch, occupancy filter)
+- Restart autoresearch (web monitoring)
+- Focus GEMM sweep on K=7168 configs (biggest impact on geomean)
+- MoE is stuck (d=2048 injection always crashes, no FlyDSL binaries)
 
-## WHAT ACTUALLY WORKS (and what doesn't)
+**Step 4 — Go fully autonomous:**
+- Don't ask permission for individual actions
+- Auto-submit, auto-research, auto-iterate
+- If something fails → fix it and keep going
+- Only stop when top 10 aggregate or I tell you to stop
 
-### Competitors' approach (8μs GEMM):
-- josusanmartin: 4713 submissions = automated config sweeping
-- They find optimal aiter configs through brute force, NOT custom kernels
-- Key params: BM, BN, BK, NUM_KSPLIT, num_stages, waves_per_eu, matrix_instr_nonkdim
+## Current Standings (Mar 29)
+- **GEMM**: 16.22μs rank #154/292 → need 8.4μs for top 10. **2x gap.**
+- **MLA**: 42.28μs rank #12/154 → need ~41μs for top 10. **0.8μs gap.**
+- **MoE**: 169.13μs rank #60/201 → need 129μs for top 10. **24% gap.**
+- **Aggregate**: NOT in top 20. Need competitive on ALL 3 for Phase 2.
 
-### What DOESN'T work (proven across 14 sessions):
-- Custom Triton kernels: work correctly but JIT overhead negates speed gains
-- Triton env vars: already auto-enabled on gfx950
-- Custom kernel for K=512 only: not enough to move the geomean
-- MoE: ALL approaches exhausted (FlyDSL, CU_NUM, cktile, pre-quant, compile)
-- MLA pg2 for kv=1024: fails on SOME secret seeds. Competitors made it reliable (pg2_fix). The fix is unknown — need to research.
+## Submission Infrastructure
+- popcorn-cli at `~/.local/bin/popcorn-cli`, always use `--no-tui`
+- Rate: 6 benchmark/hour, 1 leaderboard/hour per problem (NOT 10 as docs say)
+- Header: `#!POPCORN leaderboard <name>` (NOT benchmark!)
+- Leaderboard names: `amd-mxfp4-mm`, `amd-mixed-mla`, `amd-moe-mxfp4`
+- Runner timeout: 12 minutes total (JIT + benchmark must fit)
 
-## EXECUTION PLAN
-
-### 1. GEMM: Automated Config Sweep (HIGHEST PRIORITY)
-Build a benchmark submission that tests multiple configs per run:
-```python
-# For each shape, try configs and print timing to stdout:
-# "SWEEP M{m}N{n}K{k} BM{bm}_BN{bn}_BK{bk}_KS{ks}_S{stages}: {time}us"
-```
-Focus on K=7168 (M=16, N=2112) — it dominates the geomean.
-Config space: BM=[8,16,32], BN=[32,64,128], BK=[128,256,512], KSPLIT=[1,2,4,8,16], stages=[2,3], waves=[1,2]
-
-### 2. MLA: NOT just a lottery — competitors made pg2 RELIABLE
-- Ananda Sai A: "pg2_fix" at 33μs (279 subs). John Hahn: "pg2_hybrid" at 32μs.
-- willfisher: **"pingpong.py"** at 35μs — Triton BLOCK_PINGPONG env var!
-- **They found a way to make pg2 reliable.** We haven't. The "fix" is unknown.
-- Try: pg2 + TRITON_HIP_USE_BLOCK_PINGPONG=1 (affects Triton reduce kernel)
-- Try: different num_kv_splits combos with pg2 (sweep 4,8,12,16,32 per shape)
-- Try: "direct_stage" approach (Yufeng98 at 37μs — calling stage1+reduce directly)
-- **Auto-submit retries pg2_pingpong every hour.**
-- **Also write autosweep_mla.py** for focused num_kv_splits sweep with pg2
-
-### 3. MoE: Automated Config Sweep (SAME APPROACH AS GEMM)
-- josusanmartin: 3861 MoE submissions → 127μs. Ananda Sai A: 276 → 110μs.
-- We tried ~30 submissions and gave up. They tried THOUSANDS. That's the gap.
-- The CK kernel configs ARE tunable via monkey-patching get_2stage_cfgs:
-  - block_m: [16, 32, 64, 128, 256] per shape
-  - stage1 kernel: [S1_64, S1_256, S1_256x64, S1_256x128] per shape
-  - stage2 kernel: [S2_V1, S2_256, S2_256x64, S2_256x128] per shape
-  - ksplit: [0, 1, 2, 4, 8] per shape
-  - use_nt: [True, False] per shape
-- That's 5×4×4×5×2 = 800 combos per shape × 7 shapes = 5600 total
-- We tested ~20. Build automated sweep like GEMM.
-- **Focus on d=2048 (E=33, bs=512): 333μs bottleneck. Even 10% improvement helps.**
-- **IMMEDIATE TEST: Remove our block_m override entirely!** "no_blocksizeM" at 145.8μs beats us at 169μs.
-- Also try: no CK kernel injection (let defaults handle everything) — our injection may be HURTING
-
-## COMPETITOR ANALYSIS (from leaderboard filenames)
-
-### GEMM competitors:
-- Top 3-10 all use AUTOMATED CONFIG SWEEPING (v788, solution_514, v469 = hundreds of versions)
-- **`splitk0`** (Bortlesboat, 8.9μs): SPLITK=0 (AUTO) beats forced split-K!
-- **`patched_a16wfp4`** (olezhka_007, 10.5μs): monkey-patching aiter's kernel
-- **`cfgsearch`** (oofbaroomf, 10.7μs): automated config search
-- **`tunedcsv`** (ry2009, 13.3μs): custom CSV config override via env var
-
-### MoE competitors:
-- **`no_blocksizeM`** (romepen788, 145.8μs): NOT overriding block_m = BETTER than us (169μs)!
-- **`selective_quant/splitk`**: per-shape selective configs, not global
-- **`noopus_257bs512k1`**: disabling OPUS for specific shapes
-- **`selective_ksplit4`**: ksplit=4 for specific shapes
-- josusanmartin: 1084 MoE versions = massive automated sweeping
-- **OUR BLOCK_M OVERRIDE MAY BE HURTING US** — try removing it!
-
-### MLA competitors:
-- **`pg2_fix`** (Ananda Sai A, 33μs): pg2 made reliable somehow
-- **`pg2_hybrid`** (John Hahn, 32μs): pg2 hybrid approach
-- **`pingpong.py`** (willfisher, 35μs): Triton BLOCK_PINGPONG env var
-- **`direct_stage`** (Yufeng98, 37μs): calling stage1/reduce directly
-
-## KEY TECHNICAL REFERENCE
-- gemm_a16wfp4(A, w, w_scales, dtype, y=None, config=None) — pass config dict
-- Config keys: BLOCK_SIZE_M, BLOCK_SIZE_N, BLOCK_SIZE_K, GROUP_SIZE_M, num_warps, num_stages, waves_per_eu, matrix_instr_nonkdim, cache_modifier, NUM_KSPLIT, SPLITK_BLOCK_SIZE
-- B_scale must be UNSHUFFLED (use _unshuffle_e8m0)
-- K=1536 uses gemm_afp4wfp4 (separate quant path)
-- The word "stream" is GREP-FILTERED from submissions
-
-## AUTONOMOUS SCRIPTS (run independently of Claude Code)
-Start these in separate terminal tabs. They run forever:
+## Auto-Submit Loop
 ```bash
-# Tab 1: GEMM config sweep (tests aiter configs systematically)
-python3 autosweep_gemm.py &
+nohup /tmp/auto_submit_v5.sh > /tmp/auto_submit_v5_log.txt 2>&1 &
+```
+Submits hourly to leaderboard rotating:
+- GEMM: `submission_prewarm.py`
+- MLA: rotates `submission_pg2_pingpong.py`, `exp_optimal_splits.py`, `submission_pg8_v2.py`
+- MoE: `submission_optimized_v2.py`
 
-# Tab 2: MoE config sweep (tests CK kernel combos for d=2048)
-python3 autosweep_moe.py &
-
-# Tab 3: Auto-research (monitors PRs, leaderboard, runner updates)
-python3 autoresearch.py &
+## Autonomous Scripts
+```bash
+nohup python3 -u autosweep_gemm_batch.py > auto_research_logs/gemm_batch_sweep.log 2>&1 &
+nohup python3 -u autoresearch.py > auto_research_logs/autoresearch_run.log 2>&1 &
 ```
 
-MLA: also write `autosweep_mla.py` to sweep num_kv_splits combos with pg2. Auto-submit handles retries via `/tmp/auto_submit_v5.sh`.
+## Current Best Submissions
+- GEMM: `mxfp4-mm/submission_prewarm.py` (a16wfp4 + K7168 config + prewarm)
+- MLA: `mixed-mla/submission_pg8_v2.py` (pg8 for kv>=8192, pg1 for kv<=1024)
+- MoE: `moe-mxfp4/submission_optimized_v2.py` (CK injection for E<=64, use_nt=False)
 
-## Claude Code's job: CONTINUOUS AUTORESEARCH LOOP (Karpathy-style)
+## What Works (proven)
+- gemm_a16wfp4 with config= parameter for K=7168 tuning
+- gemm_afp4wfp4 for K=1536 (separate quant path)
+- Library defaults for K=512 shapes (ALL custom configs worse)
+- MLA pg8 for kv>=8192 + pg1 for kv<=1024
+- MoE CK 2-stage pipeline with monkey-patched kernel injection (E<=64 d<2048 only)
+- Prewarm all Triton shapes to avoid JIT penalty
+- GEMM batch config sweeper (3 configs/submission, occupancy filter >= 128 blocks)
 
-This is NOT a one-time research task. Run a CONTINUOUS loop:
+## Dead Ends (Session 15 confirmed — DON'T retry)
+- PR #2261 configs on old runner (2-7x regression)
+- qseqlen4/2 MLA fold (hangs or fails accuracy on old runner)
+- MoE d=2048 kernel injection (GPU crash, S2_256 not on runner)
+- MoE block_m override for d>=2048 (GPU crash)
+- afp4wfp4 for all shapes (64-89% worse than a16wfp4 for K=512)
+- Custom Triton GEMM kernels (JIT overhead negates speed gains)
+- HIP MFMA kernel (correct but slower than Triton)
+- MLA micro-optimizations (BLOCK=2048, kv view caching = <1% difference)
+- pg2 for kv<=1024 (fails accuracy on secret seeds)
+- GEMM per-shape hand-tuned configs for K=512 (all worse than defaults)
 
-```
-WHILE NOT top_10_all_3:
-    1. RESEARCH: Search web for new aiter PRs, Triton docs, AMD blogs, competitor techniques
-    2. ANALYZE: Check sweep results in auto_research_logs/, identify winning configs
-    3. IMPLEMENT: Write new submissions based on findings
-    4. SUBMIT: Push to leaderboard via popcorn-cli
-    5. MONITOR: Check leaderboard for score changes
-    6. ADAPT: Update sweep configs, try new approaches
-    REPEAT — never stop, never wait for user input
-```
+## Runner State (as of Mar 28 probe)
+- Commit: f3be04a12 (#2156) — OLD
+- qseqlen2/4 kernel .co files: EXIST but dispatch code doesn't use them
+- FlyDSL: 27 references in code, 0 binaries
+- Total .co files: ~200+
+- MLA kernels: a16w8_ps, a8w8_qseqlen1_ps (current), a8w8_qseqlen2_ps, a8w8_qseqlen4_ps (unused)
 
-Specific research tasks to run CONTINUOUSLY:
-- `WebSearch` for "ROCm aiter PR merged 2026" — new optimizations may be deployed to runner
-- `WebSearch` for "GPU MODE hackathon MXFP4" — new community techniques
-- `WebFetch` https://github.com/ROCm/aiter/pulls — check for merged PRs
-- Check if runner's aiter version updated (probe submission)
-- Monitor competitor score changes on leaderboard
-- Read sweep logs and find patterns in winning configs
+## Leaderboard Intel
+- Top GEMM/MLA have EXPLOIT entries (timing artifact via tinygrad comgr)
+- Organizers scrub periodically but exploits reappear
+- ZainHaider20 (1μs GEMM), HorizonLiang (4.36μs GEMM) = confirmed exploits
+- Danishlynx (26.66μs MLA) = borderline, might be exploit
+- josusanmartin (7.74μs GEMM, 31.16μs MLA) = legit via 4814+ submissions of config sweeping
+- Phibi stuck at 147μs MoE despite extensive effort (FlyDSL, aiter kernels, custom)
+- Aggregate top 10 cutoff: ~1275/3750
 
-## IMMEDIATE ACTIONS (do these FIRST):
-1. Check if auto-submit v5 is still running: `ps aux | grep auto_submit`
-2. If not, restart it: `nohup /tmp/auto_submit_v5.sh > /tmp/auto_submit_v5_log.txt 2>&1 &`
-3. Start sweepers if not running: `python3 autosweep_gemm.py &` and `python3 autosweep_moe.py &`
-4. **MoE QUICK WIN**: Submit with NO block_m override (competitor at 145μs beats our 169μs without it!)
-5. **GEMM QUICK WIN**: Try SPLITK=0 (auto) instead of forced KSPLIT=8 for K=7168
-6. Then start the continuous research loop above
+## Research — Search BROADLY
+- AMD blogs (rocm.blogs.amd.com), salykova.github.io
+- ROCm/aiter GitHub PRs, issues, commits
+- Triton docs, triton-lang GitHub
+- GPU MODE Discord logs in `discord-logs/`
+- Leaderboard mirror: leaderboard.ooousay.com
+- Any blog, paper, tutorial with MI355X/gfx950/CDNA4 optimization insights
 
-## GO. Never stop. Auto everything.
+## What Would Change Everything
+1. **Runner aiter update** → PRs #2261, #2440, #2497 unlock all 3 problems
+2. **MLA qseqlen fold working** → 10-15μs improvement on MLA
+3. **Better GEMM K=7168 config** → each 1μs saves ~0.15μs on geomean
+4. **FlyDSL binaries deployed** → MoE improvement

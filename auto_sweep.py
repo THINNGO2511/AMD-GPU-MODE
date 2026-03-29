@@ -10,7 +10,7 @@ Strategy: 3 test + 3 benchmark + 1 leaderboard per hour per problem
 import os, sys, time, subprocess, itertools, random, json
 from datetime import datetime
 
-REPO = os.path.expanduser("~/Downloads/code/AMD-GPU-MODE")
+REPO = os.path.expanduser("~/Downloads/Code/gpu mode/AMD-GPU-MODE")
 LOG_DIR = os.path.join(REPO, "sweep_logs")
 os.makedirs(LOG_DIR, exist_ok=True)
 
