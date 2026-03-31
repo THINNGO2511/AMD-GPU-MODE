@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(popcorn-cli --help)",
+      "Bash(popcorn-cli:*)",
+      "Bash(script -q /dev/null popcorn-cli submit --gpu MI355X --leaderboard amd-mixed-mla --mode test mixed-mla/submission.py)",
+      "Bash(curl -fsSL https://raw.githubusercontent.com/gpu-mode/popcorn-cli/main/install.sh)",
+      "Bash(bash)",
+      "Bash(export PATH=\"$HOME/.local/bin:$PATH\")",
+      "Bash(gtimeout 10 popcorn-cli reregister discord)",
+      "Bash(python3 -c \":*)",
+      "WebSearch",
+      "WebFetch(domain:rocm.docs.amd.com)",
+      "WebFetch(domain:blog.vllm.ai)",
+      "WebFetch(domain:rocm.blogs.amd.com)",
+      "WebFetch(domain:vllm.ai)",
+      "WebFetch(domain:github.com)"
+    ]
+  }
+}
