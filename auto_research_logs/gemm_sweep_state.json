@@ -1,0 +1,31 @@
+{
+  "best_configs": {
+    "(4, 2880, 512)": null,
+    "(16, 2112, 7168)": {
+      "BLOCK_SIZE_M": 16,
+      "BLOCK_SIZE_N": 64,
+      "BLOCK_SIZE_K": 512,
+      "GROUP_SIZE_M": 1,
+      "num_warps": 4,
+      "num_stages": 2,
+      "waves_per_eu": 2,
+      "matrix_instr_nonkdim": 16,
+      "NUM_KSPLIT": 8,
+      "SPLITK_BLOCK_SIZE": 1024
+    },
+    "(32, 4096, 512)": null,
+    "(32, 2880, 512)": null,
+    "(64, 7168, 2048)": null
+  },
+  "best_times": {
+    "(4, 2880, 512)": 6.17,
+    "(16, 2112, 7168)": 14.1,
+    "(32, 4096, 512)": 6.6,
+    "(32, 2880, 512)": 6.81,
+    "(64, 7168, 2048)": 14.0,
+    "(256, 3072, 1536)": 16.0
+  },
+  "best_geomean": 9.781539741067897,
+  "total_submissions": 6,
+  "round": 1
+}
