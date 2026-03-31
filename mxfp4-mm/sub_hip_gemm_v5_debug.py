@@ -1410,12 +1410,12 @@ def custom_kernel(data: input_t) -> output_t:
         _compare("full32", c6, ref)
 
         # MODE 7: DISABLED (int4v causes compile error)
-        if False:  # DISABLED
-        print(f"\n--- MODE 7: INT4V operand type ---")
-        dbg.zero_()
-        c7 = mod.launch_int4v(A, _b_q_u8, b_sc_slice, m, n, k, dbg)
-        torch.cuda.synchronize()
-        _compare("int4v", c7, ref)
+        # if False:
+        #     print(f"\n--- MODE 7: INT4V operand type ---")
+        #     dbg.zero_()
+        #     c7 = mod.launch_int4v(A, _b_q_u8, b_sc_slice, m, n, k, dbg)
+        #     torch.cuda.synchronize()
+        #     _compare("int4v", c7, ref)
 
         # MODE 8: single scale per thread
         print(f"\n--- MODE 8: SINGLE SCALE per thread ---")
