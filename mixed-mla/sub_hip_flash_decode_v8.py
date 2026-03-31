@@ -333,7 +333,8 @@ void mla_stage1(
                 }
             }
 
-            float inv = (mg_l > 0.0f) ? (1.0f / mg_l) : 0.0f;
+            // V was accumulated without kv_scale (Q had it). Post-multiply here.
+            float inv = (mg_l > 0.0f) ? (kv_scale / mg_l) : 0.0f;
             #pragma unroll
             for (int v = 0; v < V_PER_LANE; v++)
                 partial_o[o_base + h * V_DIM + v_base + v] = mg_o[v] * inv;
@@ -463,7 +464,7 @@ def _get_module():
     global _module
     if _module is None:
         _module = load_inline(
-            name="mla_flash_decode_v8",
+            name="mla_flash_decode_v8b",
             cpp_sources=CPP_SOURCE,
             cuda_sources=HIP_SOURCE,
             functions=["mla_flash_decode"],
