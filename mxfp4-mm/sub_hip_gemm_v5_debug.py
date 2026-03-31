@@ -816,7 +816,9 @@ void hip_mxfp4_gemm_full32(
 
 
 // ========================================================================
-// MODE 7: CK-STYLE — use int4v (128 bits) like sub_hip_gemm_simple.py
+// MODE 7: REMOVED — int4v causes compile error (MFMA needs int8v)
+// MODE 7: CK-STYLE — DISABLED
+#if 0 // DISABLED: int4v causes compile error
 // The simple version used int4v = ext_vector_type(4) = 128 bits
 // This is the SIMPLEST possible operand type — matches the simple kernel
 // ========================================================================
@@ -952,6 +954,8 @@ void hip_mxfp4_gemm_int4v(
     }
 }
 
+
+#endif // DISABLED int4v mode
 
 // ========================================================================
 // MODE 8: SINGLE SCALE per thread — test if hardware reads only byte[lg]
@@ -1211,7 +1215,7 @@ torch::Tensor launch_scales127(torch::Tensor, torch::Tensor, torch::Tensor, int6
 torch::Tensor launch_diag(torch::Tensor, torch::Tensor, torch::Tensor, int64_t, int64_t, int64_t, torch::Tensor);
 torch::Tensor launch_swap_half(torch::Tensor, torch::Tensor, torch::Tensor, int64_t, int64_t, int64_t, torch::Tensor);
 torch::Tensor launch_full32(torch::Tensor, torch::Tensor, torch::Tensor, int64_t, int64_t, int64_t, torch::Tensor);
-torch::Tensor launch_int4v(torch::Tensor, torch::Tensor, torch::Tensor, int64_t, int64_t, int64_t, torch::Tensor);
+// torch::Tensor launch_int4v(torch::Tensor, torch::Tensor, torch::Tensor, int64_t, int64_t, int64_t, torch::Tensor);  // DISABLED
 torch::Tensor launch_single_scale(torch::Tensor, torch::Tensor, torch::Tensor, int64_t, int64_t, int64_t, torch::Tensor);
 """
 
@@ -1238,7 +1242,7 @@ def _get_module():
                 "launch_diag",
                 "launch_swap_half",
                 "launch_full32",
-                "launch_int4v",
+                # "launch_int4v",  # DISABLED
                 "launch_single_scale",
             ],
             extra_cuda_cflags=["-O3", "--offload-arch=gfx950"],
@@ -1405,7 +1409,8 @@ def custom_kernel(data: input_t) -> output_t:
         torch.cuda.synchronize()
         _compare("full32", c6, ref)
 
-        # MODE 7: int4v operand type
+        # MODE 7: DISABLED (int4v causes compile error)
+        if False:  # DISABLED
         print(f"\n--- MODE 7: INT4V operand type ---")
         dbg.zero_()
         c7 = mod.launch_int4v(A, _b_q_u8, b_sc_slice, m, n, k, dbg)
