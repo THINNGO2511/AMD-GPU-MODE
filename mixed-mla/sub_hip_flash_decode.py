@@ -118,6 +118,27 @@ __global__ void mla_stage1(
     __shared__ float s_q[NUM_HEADS][QK_DIM];
     __shared__ float s_red[THREADS];
 
+    // Build fp8_e4m3fnuz LUT in shared memory (256 entries)
+    __shared__ float fp8_lut[256];
+    if (tid < 256) {
+        unsigned char b = (unsigned char)tid;
+        if (b == 0x80 || b == 0) {
+            fp8_lut[tid] = 0.0f;
+        } else {
+            int sign = (b >> 7) & 1;
+            int exp = (b >> 3) & 0xF;
+            int mant = b & 0x7;
+            float val;
+            if (exp == 0) {
+                val = ldexpf((float)mant / 8.0f, 1 - 8);
+            } else {
+                val = ldexpf(1.0f + (float)mant / 8.0f, exp - 8);
+            }
+            fp8_lut[tid] = sign ? -val : val;
+        }
+    }
+    __syncthreads();
+
     // Load Q into shared memory: 16 * 576 = 9216 elements, 256 threads
     for (int i = tid; i < NUM_HEADS * QK_DIM; i += THREADS) {
         int h = i / QK_DIM;
@@ -149,32 +170,10 @@ __global__ void mla_stage1(
         const int kv_global = kv_start + split_start + t;
         const unsigned char* kv_ptr = (const unsigned char*)(KV + (long long)kv_global * QK_DIM);
 
-        // Load fp8 as uint8, convert to float via __builtin_amdgcn_cvt_f32_fp8
-        // For e4m3fnuz: use cvt_sr_fp8_f32 variant or manual bitcast
-        float kv0, kv1, kv2;
-        {
-            // Simple software fp8_e4m3fnuz -> float conversion
-            // e4m3fnuz: sign(1) + exp(4) + mantissa(3), bias=8, no inf/nan, no negative zero
-            auto fp8_to_f32 = [](unsigned char b) -> float {
-                if (b == 0x80) return 0.0f;  // NaN maps to 0
-                if (b == 0) return 0.0f;
-                int sign = (b >> 7) & 1;
-                int exp = (b >> 3) & 0xF;
-                int mant = b & 0x7;
-                float val;
-                if (exp == 0) {
-                    // Denormal: val = 2^(1-bias) * (mant/8)
-                    val = ldexpf((float)mant / 8.0f, 1 - 8);
-                } else {
-                    // Normal: val = 2^(exp-bias) * (1 + mant/8)
-                    val = ldexpf(1.0f + (float)mant / 8.0f, exp - 8);
-                }
-                return sign ? -val : val;
-            };
-            kv0 = fp8_to_f32(kv_ptr[tid]) * kv_scale;
-            kv1 = fp8_to_f32(kv_ptr[tid + 256]) * kv_scale;
-            kv2 = (tid < ROPE_DIM) ? (fp8_to_f32(kv_ptr[tid + 512]) * kv_scale) : 0.0f;
-        }
+        // Load fp8 as uint8, convert via LUT (single shared memory read per element)
+        float kv0 = fp8_lut[kv_ptr[tid]] * kv_scale;
+        float kv1 = fp8_lut[kv_ptr[tid + 256]] * kv_scale;
+        float kv2 = (tid < ROPE_DIM) ? (fp8_lut[kv_ptr[tid + 512]] * kv_scale) : 0.0f;
 
         // Pre-load V values for this thread's output dims (first 512 of KV)
         float v0 = kv0;                // dim tid < 256, always valid V
@@ -393,7 +392,7 @@ def _get_module():
     global _module
     if _module is None:
         _module = load_inline(
-            name="mla_flash_decode_v3",
+            name="mla_flash_decode_v5",
             cpp_sources=CPP_SOURCE,
             cuda_sources=HIP_SOURCE,
             functions=["mla_flash_decode"],
