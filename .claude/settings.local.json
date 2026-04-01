@@ -14,7 +14,8 @@
       "WebFetch(domain:blog.vllm.ai)",
       "WebFetch(domain:rocm.blogs.amd.com)",
       "WebFetch(domain:vllm.ai)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(popcorn submit:*)"
     ]
   }
 }
