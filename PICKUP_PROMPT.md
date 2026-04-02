@@ -1,91 +1,77 @@
-# Pickup Prompt — Session 19
+# Pickup Prompt — Session 20
 
 Continue GPU kernel optimization for AMD x GPU MODE hackathon. I'm noobmaster69_og. Deadline April 6, 2026 11:59 PM PST.
 
-## CURRENT SCORES (Mar 31 end of session 18)
+## CURRENT SCORES (Apr 1 end of session 19)
 - **GEMM**: 15.7μs rank ~#160/320 → need <8.2μs for top 10
 - **MLA**: 42.16μs rank #17/185 → need <34.9μs for top 10
 - **MoE**: 169.13μs rank #64/225 → need <129.4μs for top 10
 
-## MoE CSV Format (PROBED — use this for AITER_CONFIG_FMOE)
-**Actual columns** (from tuned_fmoe.csv, 1421 rows):
-```
-cu_num, token, model_dim, inter_dim, expert, topk, act_type, dtype,
-q_dtype_a, q_dtype_w, q_type, use_g1u1, doweight_stage1, block_m, ksplit,
-us1, kernelName1, err1, us2, kernelName2, err2, us, run_1stage, tflops, bw
-```
-- dsv3 CSV has extra `_tag` column (14 rows, all E=257)
-- tuned_fmoe.csv: 25 E=257 entries, 26 E=33 entries (cu_num=80, wrong GPU)
-- dsv3 CSV: 14 E=257 entries (cu_num=256)
-- **STILL NEED**: actual sample rows to see value formats (dtypes print was empty)
-- Next session: re-probe with `df.head(3).to_csv()` to get raw CSV row format
+## SESSION 19 KEY FINDINGS
 
-## WHAT TO DO NEXT (from Claude Research intel)
+### MoE Internal Flow (PROBE-CONFIRMED)
+Per fused_moe call:
+- `moe_sorting` / `_moe_sorting_impl`: called **ONCE** (not twice!)
+- `fused_dynamic_mxfp4_quant_moe_sort`: called **TWICE** (fused Triton kernel doing quant + rearrange, once per GEMM stage)
+- Sort caching is COMPLETELY USELESS — the expensive 2x call is the Triton quant kernel, not the Python sort
 
-### Priority 1: MoE Sort Caching (UNTRIED, highest impact)
-The research confirmed `moe_sorting()` returns depend ONLY on routing (topk_ids). Sort results can be cached across GEMM stages. Monkey-patch pattern:
-```python
-_original = aiter_fmoe.moe_sorting
-_cache = {}
-def cached_moe_sorting(topk_ids, topk_weights, E, model_dim, dtype, cache_key=None):
-    if cache_key and cache_key in _cache:
-        s_tok, s_wt, s_exp, n_valid = _cache[cache_key]
-        out = torch.empty((topk_ids.shape[0], model_dim), dtype=dtype, device=topk_ids.device)
-        return s_tok, s_wt, s_exp, n_valid, out
-    result = _original(topk_ids, topk_weights, E, model_dim, dtype)
-    if cache_key:
-        _cache[cache_key] = result[:4]
-    return result
-```
-NOTE: fused_moe C++ wrapper calls moe_sorting internally. Need to monkey-patch at the right level.
+### CSV Override WORKS (format confirmed)
+- AITER_CONFIG_FMOE picks up custom CSV correctly
+- E=33 entries found and used by runtime
+- Column format: `cu_num,token,model_dim,inter_dim,expert,topk,act_type,dtype,q_dtype_a,q_dtype_w,q_type,use_g1u1,doweight_stage1,block_m,ksplit,us1,kernelName1,err1,us2,kernelName2,err2,us,run_1stage,tflops,bw`
+- Values must use EXACT strings: `ActivationType.Silu`, `torch.bfloat16`, `torch.float4_e2m1fn_x2`, `QuantType.per_1x32`, `use_g1u1=1`, `doweight_stage1=0`
+- E=33 d=2048 with 256x128x128x128 + 64x128x128x128_v3 kernels → GPU CRASH. Only smaller tiles (64x32, 256x32) are safe for E=33.
 
-### Priority 2: MoE AITER_CONFIG_FMOE CSV (fix format)
-Previous attempt crashed — used wrong column value format. The probe will reveal:
-- Exact column names and dtypes
-- What cu_num value the runner uses
-- What q_type format (numeric vs string)
-- Existing E=257 and E=33 entries
-Use this to build correct CSV with different kernel combos for E=257.
+### Block_m Mismatch (potential fix)
+- E=33 d=512 bs=512: DEFAULT block_m=128, our override gives 64, CK injection hardcodes 32
+- We might be HURTING ourselves on this shape — need to test default vs our overrides
 
-### Priority 3: GEMM TRITON_HIP_USE_IN_THREAD_TRANSPOSE=1
-Confirmed DISABLED by default on gfx950 but EXISTS. Claude Research says it controls in-thread transpose optimization. Quick env var test.
+### Dead Ends Confirmed (Session 19)
+- MoE sort caching (moe_sorting called once, also crashed with 1.65M mismatches)
+- FlyDSL env vars (AITER_ENFORCE_DSL, AITER_USE_FLYDSL_MOE — no effect on FP4)
+- GEMM TRITON_HIP_USE_IN_THREAD_TRANSPOSE=1 (±2%, no real improvement)
+- GEMM AMDGCN_USE_BUFFER_OPS=0 (forces Triton recompile → timeout)
+- GEMM AMDGCN_ANALYZE_SMALL_TENSOR_RANGE=1 (same timeout)
+- MLA pg4 for kv=8192 (timed out)
+- CK_TILE_FLOAT_TO_BFLOAT16_DEFAULT=3 (not submitted, FlyDSL dead)
 
-### Priority 4: MLA pg2 Ratcheting
-Keep submitting `sub_pg2_bf16q.py` to leaderboard (67% pass rate). Each attempt has independent secret seeds.
+### Timed Out (need retry)
+- moe_minimal.py (just use_nt=False, no overrides — tests if our patches hurt)
+- mla_fixed_scale.py (fixed fp8 Q scale, saves 1 kernel launch)
+- gemm_exp_deep_probe.py (discovers ASM/deepgemm API paths)
 
-## CONFIRMED DEAD ENDS (Session 18, don't retry)
-- GEMM preshuffle: shuffle format matches but reshape data layout wrong, need CK C++ source
-- GEMM gemm_a8wfp4: 94% mismatch, 117μs
-- GEMM L2 prefetch HIP: +5μs overhead
-- GEMM KSPLIT=14: worse
-- GEMM XCD remap: accuracy broken
-- GEMM Triton PINGPONG/ASYNC env vars: auto-enabled, explicit setting worse
-- GEMM OPTIMIZE_EPILOGUE: doesn't exist as env var
-- MLA bf16 KV: same 4% mismatch as fp8
-- MLA KV subsample: 71K mismatches
-- MLA qseqlen2: fails secret seeds
-- MLA HSA_HIGH_PRECISION_MODE: zero effect
-- MoE ksplit=2: JIT timeout (kFFN_gemm1_split_k template >10 min)
-- MoE block_m=16: assertion crash on test shapes
-- MoE AITER_USE_OPUS_MOE_SORTING=0: internal error
-- CK ASM gemm_a4w4: API changed, quant=44μs
+## WHAT TO DO NEXT
 
-## COMPREHENSIVE RESEARCH BRIEF
-See `RESEARCH_BRIEF.md` for complete details on all approaches, timings, competitor intel, and open questions.
+### Priority 1: MoE — Fix block_m mismatch
+Our CK injection hardcodes block_m=32 in MOEMetadata. The default for E=33 d=512 bs=512 is block_m=128. Test:
+1. Remove CK injection for E=33 entirely (let defaults handle it)
+2. Or fix MOEMetadata to use get_block_size_M() result instead of hardcoded 32
 
-## WHAT WORKS (proven, current best)
-- **GEMM**: `mxfp4-mm/sub_ultimate_v1.py` — 15.7μs (torch.take + BM=16 + .cg)
-- **MLA**: `mixed-mla/sub_pg2_bf16q.py` — 42.16μs (pg2+bf16Q kv≤1024, pg8+fp8Q kv≥8192)
-- **MoE**: `moe-mxfp4/submission_optimized_v2.py` — 169μs (CK injection E≤64, use_nt=False)
+### Priority 2: MoE — Retry minimal test
+Submit moe_minimal.py again (just use_nt=False). If it's faster than 169μs, our overrides are the problem.
+
+### Priority 3: MLA — Fixed-scale quant retry
+The fixed-scale fp8 Q quant (single kernel, hardcoded scale=16.0/FP8_MAX) timed out. Retry.
+
+### Priority 4: MLA — Keep ratcheting pg2 leaderboard
+67% pass rate per attempt. Need luck.
+
+### Priority 5: GEMM — Deep probe retry
+The ASM/deepgemm probe timed out. Need to discover if there are alternative kernel paths.
+
+### Priority 6: MoE — CSV override for E=33 with SAFE kernels
+CSV format works! But only use 64x32 or 256x32 kernels for E=33 (128x128 crashes).
+
+## Claude Research Files
+10 experiment files at `claude-research-files/`. Status:
+- DEAD: moe_sort_cache.py, mla_pg2_all.py, gemm_stages3_k512.py, gemm_afp4_k2048.py
+- TIMED OUT: moe_minimal.py, mla_fixed_scale.py, gemm_exp_deep_probe.py (retry these)
+- UNTESTED: moe_custom_csv.py (replaced by our sub_moe_csv_fixed.py), mla_aggressive.py
+- CRASHED: sub_moe_csv_fixed.py (128x128 kernels on E=33 d=2048)
 
 ## COMMANDS
 ```bash
-# MLA ratchet (67% pass rate dice roll)
+popcorn submit --gpu MI355X --leaderboard amd-moe-mxfp4 --mode benchmark moe-mxfp4/FILE.py --no-tui
 popcorn submit --gpu MI355X --leaderboard amd-mixed-mla --mode leaderboard mixed-mla/sub_pg2_bf16q.py --no-tui
-
-# MoE test new approach
-popcorn submit --gpu MI355X --leaderboard amd-moe-mxfp4 --mode benchmark moe-mxfp4/NEW_FILE.py --no-tui
-
-# GEMM test new approach
-popcorn submit --gpu MI355X --leaderboard amd-mxfp4-mm --mode benchmark mxfp4-mm/NEW_FILE.py --no-tui
+popcorn submit --gpu MI355X --leaderboard amd-mxfp4-mm --mode benchmark mxfp4-mm/FILE.py --no-tui
 ```
