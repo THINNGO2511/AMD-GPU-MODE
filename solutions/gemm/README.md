@@ -45,6 +45,13 @@ See [experiments/hip-kernels/](../../experiments/hip-kernels/) for all 8 iterati
 
 Kernel compute time: **~0.56us** (warm cache, 50 reps). Benchmark time: **~6.18us**. The 91% gap is L2 cache clearing between iterations. No kernel optimization can fix this — the bottleneck is memory, not compute.
 
+## Files
+
+| File | Description |
+|------|-------------|
+| `submission_prewarm.py` | Best submission — per-K kernel selection, full JIT prewarm, tuned configs. Leaderboard version. |
+| `sub_ultimate_v1.py` | Alternate approach — different config tuning strategy, used for benchmarking |
+
 ## Dead Ends (18 total)
 
 - hipBLASLt FP4 — accumulation order mismatch, 38% relative error (14 attempts)

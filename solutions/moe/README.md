@@ -52,3 +52,10 @@ See [experiments/moe-quant/](../../experiments/moe-quant/) for all iterations.
 - FlyDSL — zero binaries on runner
 - Quant threshold patch (`token_num_quant_moe_sort_switch=8192`) — fused path slower for large tokens
 - See [docs/DEAD_ENDS.md](../../docs/DEAD_ENDS.md) for full list
+
+## Files
+
+| File | Description |
+|------|-------------|
+| `submission_optimized_v2.py` | Best submission — CK kernel injection for E=33, OPUS sorting, use_nt=False. Leaderboard version. |
+| `submission_optimized_v3.py` | Iteration on v2 — additional block_m tuning for d=2048 |

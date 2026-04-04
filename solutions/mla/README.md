@@ -36,6 +36,14 @@ Per-shape `num_kv_splits`: 4 for small batch, 8 for medium, 16 for large. Balanc
 | S6 | 36.4us | -14% | FP8 Q everywhere + skip-amax |
 | S22 | 33.9us | -7% | pg8 for kv>=8192 + tuned splits |
 
+## Files
+
+| File | Description |
+|------|-------------|
+| `mla_fp8q_all.py` | Best submission — FP8 Q quant for all shapes, pg1/pg8 split, tuned kv_splits |
+| `mla_safe_fast.py` | Conservative variant — prioritizes accuracy over speed, safe for leaderboard |
+| `mla_skip_amax_ratchet.py` | Fixed-scale FP8 quant (skips amax kernel) + ratchet logic for iterative improvement |
+
 ## Dead Ends (12 total)
 
 - `pg2` for `kv=1024` — ~4% mismatch, fails secret seeds 33% of the time
