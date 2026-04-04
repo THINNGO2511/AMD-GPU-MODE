@@ -1,153 +1,104 @@
-# AMD x GPU MODE Hackathon — E2E Model Speedrun
+# AMD x GPU MODE Hackathon — MI355X Kernel Optimization
 
-Phase 1 Qualifiers | Deadline: April 7, 2026 | GPU: AMD Instinct MI355X (gfx950, CDNA4)
+GPU kernel optimization for MXFP4 GEMM, Mixture of Experts, and Multi-head Latent Attention on AMD Instinct MI355X (gfx950, CDNA4).
 
-## Current Standings (Mar 28, 2026)
-| Problem | Score | Rank | Top 10 | Gap |
-|---------|-------|------|--------|-----|
-| MXFP4 GEMM | 16.222μs | 151 | 8.4μs | 2x |
-| MLA Decode | 42.488μs | 11 | 41.8μs | 0.7μs |
-| MXFP4 MoE | 169.131μs | ~57 | 136μs | 20% |
+**Competition:** AMD x GPU MODE E2E Model Speedrun — Phase 1 Qualifiers ($1.1M prize pool)
+**Hardware:** AMD Instinct MI355X — 304 CUs, 8 XCDs, 5.3 TB/s HBM3E, 160KB LDS/CU
+**Constraint:** No physical GPU access — all development via blind remote submission (6 benchmarks/hr, 1 leaderboard/hr)
+**Handle:** noobmaster69_og
 
-## Quick Start — Mac/Linux
+## Results
 
-```bash
-git clone <repo-url> && cd AMD-GPU-MODE
-pip install popcorn-cli          # or: cargo install popcorn-cli
-popcorn-cli register             # login with Discord
-bash restore_memory.sh           # restore Claude Code memory
-python3 autosweep_gemm.py &     # GEMM config sweep
-python3 autosweep_moe.py &      # MoE config sweep
-python3 autoresearch.py &       # continuous monitoring
-bash auto_submit.sh &           # hourly leaderboard submissions
-# Open Claude Code → paste PICKUP_PROMPT.md
+| Problem | Starting | Final (benchmark) | Improvement | Rank |
+|---------|----------|-------------------|-------------|------|
+| **MLA Decode** | 56.6 us | **33.9 us** | **40%** | ~#13 |
+| **MXFP4 GEMM** | 16.5 us | **9.72 us** | **41% (bench)** | ~#160 |
+| **MoE** | 169 us | **163 us** | **4%** | ~#65 |
+
+## Technical Highlights
+
+### MLA: FP8 Quantization + Adaptive Page Size (40% speedup)
+
+The winning insight: quantize Q tensors to FP8 for **all** shapes (not just large KV). For `bs=256, kv=1024`, this halves Q bandwidth from 4.7MB to 2.4MB. Combined with:
+- **Adaptive page sizes**: `pg1` for `kv<=1024` (accuracy-safe), `pg8` for `kv>=8192` (8x KV cache reduction)
+- **Fixed-amax FP8 quantization**: Skip the expensive `amax` kernel launch by using a fixed scale of 32.0 — saves ~1us per call
+- **Tuned KV splits**: Per-shape split counts (4-16) based on batch size and sequence length
+- **Pre-allocated intermediates**: Reuse output tensors and metadata across calls
+
+### GEMM: Systematic Config Sweep + Custom HIP MFMA Exploration
+
+Explored the full optimization space for `gemm_a16wfp4` (on-the-fly bf16-to-FP4 quantization + GEMM):
+- **Per-shape Triton configs**: Different `BLOCK_SIZE_M/N/K`, `NUM_KSPLIT`, `num_stages`, `waves_per_eu` per benchmark shape
+- **Fast E8M0 unshuffle**: `torch.take` with precomputed gather indices (avoids reshape overhead)
+- **Full JIT warmup**: Pre-compile all 6 benchmark shapes before first benchmark iteration
+- **Custom HIP MFMA kernel**: Got `__builtin_amdgcn_mfma_scale_f32_16x16x128_f8f6f4` compiling and running on gfx950 — verified output mapping, K-loop, M/N tiling across all shapes. Achieved 0.93 correlation with reference (unsolved internal permutation mapping)
+
+**Key discovery**: GEMM is 91% memory-bound. Actual kernel compute is ~0.56us; the 6.18us benchmark time is dominated by L2 cache clearing between iterations.
+
+### MoE: CK Kernel Injection + Block Size Tuning
+
+Monkey-patched aiter's `fused_moe` pipeline to inject specific CK kernel variants:
+- **CK kernel injection**: Replaced default kernels with `STAGE1_256x32x128x128` for high-throughput shapes
+- **`use_nt=False` discovery**: Disabling non-temporal loads hurts E=257 shapes by ~11us (weights fit in L2), but CK injection for E=33 compensates
+- **Custom HIP quantization kernel**: Built a 2.6x faster bf16-to-MXFP4 quantization kernel (100% scale match, 98.7% FP4 match) — but ephemeral pod compile overhead negated the savings
+
+## Repository Structure
+
+```
+solutions/          Best submissions for each problem
+  mla/              MLA decode (33.9us benchmark)
+  gemm/             MXFP4 GEMM (9.72us benchmark)
+  moe/              MoE (163us ranked)
+
+experiments/        All experimental approaches
+  hip-kernels/      Custom HIP MFMA FP4 kernel iterations (v1-v8)
+  moe-quant/        HIP quantization kernel (v1-v2 + pipeline injection)
+  gemm-sweep/       Triton config sweep infrastructure
+  probes/           Runner environment probes (deepgemm, kernel enumeration)
+
+docs/               Documentation
+  DEAD_ENDS.md      53 documented dead ends (valuable community reference)
+  TECHNICAL_DISCOVERIES.md  Key findings about MI355X and aiter internals
+  RESEARCH_LOG.md   Complete session-by-session technical log
+
+research/           Reference materials and analysis
+scripts/            Automation (ratcheting, sweeping, research)
+logs/               Overnight automation results
 ```
 
-## Quick Start — Windows
+## Key Findings
 
-```cmd
-git clone <repo-url>
-cd AMD-GPU-MODE
-pip install popcorn-cli
-popcorn-cli register
-restore_memory.bat               &REM restore Claude Code memory
-start python autosweep_gemm.py   &REM GEMM config sweep
-start python autosweep_moe.py    &REM MoE config sweep
-start python autoresearch.py     &REM continuous monitoring
-start auto_submit.bat            &REM hourly leaderboard submissions
-REM Open Claude Code → paste PICKUP_PROMPT.md
-```
+1. **hipBLASLt FP4 has an accumulation order mismatch** with Triton's reference implementation — 14 attempts, all failed accuracy despite correct math. The reduction order differs, producing 38% relative error.
 
-> **Note**: Python scripts auto-detect `popcorn-cli` location via `shutil.which()`. Make sure it's on your PATH.
+2. **The MFMA FP4 instruction works on gfx950 via `load_inline`** — `__builtin_amdgcn_mfma_scale_f32_16x16x128_f8f6f4` compiles and runs correctly. Output mapping: `row = (lane/16)*4 + reg_idx`, `col = lane % 16`. But the internal K-position-to-thread mapping has an unknown permutation that causes 7% positional error.
 
-## Project Structure
+3. **Ephemeral pods kill custom kernel approaches** — `load_inline` adds ~10s compile overhead per submission. For microsecond-level kernel optimizations, this overhead negates any speedup.
 
-```
-AMD-GPU-MODE/
-├── PICKUP_PROMPT.md          # ⭐ Paste this into Claude Code to resume work
-├── KNOWLEDGE.md              # Full technical knowledge base
-├── CLAUDE.md                 # Competition rules + proven techniques
-├── README.md                 # This file
-│
-├── autosweep_gemm.py         # 🔄 GEMM automated config sweep (runs forever)
-├── autosweep_moe.py          # 🔄 MoE automated config sweep (runs forever)
-├── autoresearch.py           # 🔄 Continuous monitoring (runs forever)
-├── auto_submit.sh            # 🔄 Hourly leaderboard submissions
-│
-├── mxfp4-mm/                 # GEMM submissions
-│   ├── submission_prewarm.py           # Current best (16.222μs)
-│   ├── submission_stages3_all.py       # num_stages=3 experiment
-│   ├── submission_envvars.py           # Triton env vars experiment
-│   ├── submission_best_combined.py     # Envvars + fused K=512 kernel
-│   ├── submission_fused_all.py         # Fused kernel all shapes
-│   ├── submission_fused_k512_v2.py     # Fused kernel K=512 only
-│   ├── submission_tutorial_gemm_v3.py  # Custom Triton tl.dot_scaled
-│   ├── submission_custom_triton.py     # First custom kernel attempt
-│   ├── submission_splitk_v1.py         # Split-K version
-│   └── exp_*.py                        # Experimental probes
-│
-├── mixed-mla/                # MLA submissions
-│   ├── submission_a16w8_pg2_pg8.py     # Current best (42.488μs) ⭐
-│   ├── submission_pg2_pingpong.py      # pg2 + Triton BLOCK_PINGPONG
-│   ├── submission_pg2_pg8_splits_fix.py # pg2 with fixed splits
-│   ├── submission_pg8_v3.py            # Safe pg1+pg8 approach
-│   ├── submission_pg1_all.py           # Ultra-safe pg1 all shapes
-│   └── exp_*.py                        # Experimental probes
-│
-├── moe-mxfp4/                # MoE submissions
-│   ├── submission_opus_sort.py         # Current best (169.131μs)
-│   ├── submission_inject_metadata.py   # CK kernel injection (~167μs)
-│   ├── submission_envvars_moe.py       # Triton env vars
-│   ├── submission_compile.py           # torch.compile experiment
-│   └── exp_*.py                        # Experimental probes
-│
-├── auto_research_logs/       # Sweep results + submission logs
-│   ├── submissions.jsonl     # All submission history
-│   ├── gemm_sweep.jsonl      # GEMM config sweep results
-│   ├── moe_sweep.jsonl       # MoE config sweep results
-│   └── research.jsonl        # Auto-research findings
-│
-└── discord-logs/             # Discord conversation archives
-```
+4. **`deepgemm_ck` exists in aiter but only supports gfx942 (MI300X)**, not gfx950. It's a grouped FP8 GEMM, not MXFP4.
 
-## Three Problems
+5. **The MoE quantization pipeline (`fused_dynamic_mxfp4_quant_moe_sort`) is a Triton kernel** at `/home/runner/aiter/aiter/ops/triton/quant/fused_mxfp4_quant.py` — fully monkey-patchable from Python.
 
-### 1. MXFP4 GEMM (`mxfp4-mm/`)
-- Quantize bf16 A → MXFP4, multiply with pre-quantized MXFP4 B → bf16 C
-- 6 benchmark shapes: M=4/16/32/64/256, various N/K
-- Key API: `gemm_a16wfp4(A, w, w_scales, dtype, y=None, config=None)`
-- **Strategy**: Automated config sweep (BM/BN/BK/KSPLIT/stages/waves)
+## Methodology
 
-### 2. MLA Decode (`mixed-mla/`)
-- DeepSeek-R1 Multi-head Latent Attention with mixed precision KV cache
-- 8 benchmark shapes: bs=4/32/64/256, kv=1024/8192
-- Key API: `mla_decode_fwd(...)` with pre-compiled ASM kernels
-- **Strategy**: pg2 with reliability fix + Triton BLOCK_PINGPONG
+This project used AI-assisted kernel engineering via Claude Code running autonomously for 22+ sessions. The workflow:
 
-### 3. MXFP4 MoE (`moe-mxfp4/`)
-- DeepSeek-R1 fused MoE: 256+1 experts, top-8+1, SwiGLU, 2-stage pipeline
-- 7 benchmark shapes, d=2048 dominates geomean at 333μs
-- Key API: `fused_moe(...)` with CK kernel monkey-patching
-- **Strategy**: Automated CK kernel × block_m sweep. Remove block_m override!
+1. **Probe** the runner environment (no documentation available for MI355X-specific aiter APIs)
+2. **Hypothesis** — form a specific, testable optimization idea
+3. **Submit** via `popcorn-cli` to remote MI355X hardware (6 benchmarks/hr limit)
+4. **Analyze** results, log everything, update dead-ends list
+5. **Iterate** or pivot based on data
 
-## Submission Commands
-```bash
-# Test (check accuracy, no timing)
-popcorn-cli submit --gpu MI355X --leaderboard <name> --mode test <file> --no-tui
+Every approach was systematically documented — 53 dead ends across the three problems serve as a reference for what NOT to try on MI355X FP4 workloads.
 
-# Benchmark (timing, no leaderboard ranking)
-popcorn-cli submit --gpu MI355X --leaderboard <name> --mode benchmark <file> --no-tui
+## Competition Details
 
-# Leaderboard (official ranking — 1/hr limit!)
-popcorn-cli submit --gpu MI355X --leaderboard <name> --mode leaderboard <file> --no-tui
-```
+- **Event**: AMD x GPU MODE — E2E Model Speedrun, Phase 1 Qualifiers
+- **Period**: March-April 2026
+- **Hardware**: AMD Instinct MI355X (gfx950, CDNA4)
+- **Software**: ROCm 7.1, PyTorch 2.10.0, Triton 3.6.0, aiter (AMD inference library)
+- **Submission**: `popcorn-cli` to ephemeral GPU pods (no persistent state)
+- **Ranking**: Geometric mean of benchmark latencies across all test cases
 
-Leaderboard names: `amd-mxfp4-mm`, `amd-mixed-mla`, `amd-moe-mxfp4`
+## License
 
-## Rate Limits
-- 6 submissions/hr per problem (test + benchmark + leaderboard share this)
-- 1 leaderboard submission/hr per problem
-- The word "stream" is GREP-FILTERED from submissions — don't use it!
-
-## Key Learnings (14+ rounds of work)
-- Custom Triton kernels work but JIT overhead negates speed in benchmarks
-- Competitors use automated config sweeping (thousands of submissions)
-- `num_stages=3` may be optimal on gfx950 (PR #2434)
-- MoE: removing block_m override may improve score (competitor insight)
-- MLA pg2: competitors made it reliable (unknown fix)
-- Triton BLOCK_PINGPONG env var used by MLA competitor "pingpong.py"
-
-## Claude Code Memory
-Memory files are backed up in `claude-memory/` in this repo.
-On a new machine, restore them:
-```bash
-bash restore_memory.sh
-```
-This copies 20+ memory files (learnings, dead ends, active leads, session results) into Claude Code's memory directory so it picks up exactly where we left off.
-
-Key memory files:
-- `active_leads.md` — current priorities
-- `dead_ends.md` — what NOT to try (saves HOURS)
-- `gemm_custom_kernel.md` — custom Triton kernel details
-- `session9-14_results.md` — per-session results
-- `feedback_nonstop.md` — never stop mode instructions
+MIT

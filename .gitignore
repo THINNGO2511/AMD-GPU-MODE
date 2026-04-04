@@ -1,8 +1,14 @@
-# CC_TASKS.md
-# *.json
-# *_output.txt
-# *_last_sweep*
-# __pycache__/
-# *.pyc
-# .claude/
-# gemm_experiments/logs/
+__pycache__/
+*.pyc
+*.egg-info/
+.cache/
+*.log
+.env
+.claude/
+node_modules/
+*.so
+*.o
+build/
+*.zip
+profile_*.zip
+.popcorn.yaml

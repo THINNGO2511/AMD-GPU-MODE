@@ -1,0 +1,16 @@
+timestamp,problem,shape,config_name,benchmark_us,geomean_us
+2026-04-03 03:01 | GEMM sweep #1 SPBS=2048 | K7168=13.8 K2048=14.1 geomean=~9.7 | NO CHANGE
+2026-04-03 03:06 | GEMM sweep #2 SPBS=512 | K7168=13.7 K2048=14.1 | NO CHANGE
+2026-04-03 03:06 | GEMM sweep #3 GM=2 | K7168=13.9 K2048=14.1 | SLIGHTLY WORSE
+2026-04-03 03:12 | GEMM sweep #5 MI32 | K7168=15.2(WORSE) K2048=158(CATASTROPHIC) | DEAD for nonkdim=32
+2026-04-03 03:21 | GEMM sweep #6 waves=1 | K7168=13.8 K2048=14.1 | NO CHANGE
+2026-04-03 03:30 | GEMM sweep #7 BN=32 | K7168=16.0(WORSE) | BN=32 too narrow
+2026-04-03 03:30 | GEMM sweep #4 GM=4 | K7168=13.7(SAME) | GROUP_SIZE_M doesn't matter
+2026-04-03 04:06 | GEMM sweep #16 K2048 waves=2 | K=2048=14.1 | NO CHANGE - waves_per_eu doesn't affect K=2048
+2026-04-03 04:13 | GEMM sweep #8 BN=128 | K7168=14.4(WORSE) | BN=128 too wide
+2026-04-03 04:13 | GEMM sweep #11 warps=8 | K7168=15.5(WORSE) | warps=8 hurts
+2026-04-03 10:38 | GEMM HIP Phase 1 v2 | COMPILE SUCCESS + MFMA produces correct values (128.0) | 128/256 nonzero - need to fix output store mapping
+2026-04-03 10:44 | GEMM HIP Phase 1 COMPLETE | Output mapping: row=(lane/16)*4+i, col=lane%16 | All 256/256 nonzero | MFMA FP4 working on gfx950!
+2026-04-03 13:44 | v3/v5/v6 all give identical 0.93 corr | Issue is MFMA internal K-position mapping | Known unsolved from CLAUDE.md sessions | Need to match CK's data format not raw FP4
+2026-04-03 14:10 | CRITICAL INSIGHT: GEMM actual kernel time is ~0.56μs (warm cache). Benchmark 6.18μs is 91% L2 cache effects. Custom HIP kernel CANNOT beat this — memory-bound, not compute-bound.
+2026-04-03 14:22 | GEMM HIP kernel: 0.93 corr is ceiling for current approach. Nibble swap tests confirm byte layout is correct but K-position mapping has unknown internal MFMA shuffle. Same unsolved issue from sessions 5-13. PIVOTING to MoE quant kernel.
